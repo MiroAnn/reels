@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 Reels Analyzer</title>
+<style>
+  :root {
+    --purple: #7c3aed;
+    --pink: #db2777;
+    --orange: #f97316;
+    --grad: linear-gradient(135deg, #6b21a8, #db2777, #f97316);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f7f3ff;
+    color: #111;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--grad);
+    padding: 28px 32px 24px;
+    color: white;
+    text-align: center;
+  }
+  .header h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+  .header p { font-size: 14px; opacity: 0.85; margin-top: 5px; }
+
+  /* ── Search ── */
+  .search-wrap {
+    max-width: 680px;
+    margin: 28px auto 0;
+    padding: 0 20px;
+  }
+  .search-box {
+    display: flex;
+    gap: 10px;
+    background: white;
+    border-radius: 16px;
+    padding: 8px 8px 8px 18px;
+    box-shadow: 0 4px 24px rgba(109,40,217,0.15);
+  }
+  .search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #111;
+    background: transparent;
+  }
+  .search-box input::placeholder { color: #a78bfa; }
+  .search-box button {
+    background: var(--grad);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .search-box button:hover { opacity: .88; }
+  .search-box button:disabled { opacity: .5; cursor: default; }
+
+  /* ── Formula pill ── */
+  .formula-wrap {
+    max-width: 680px;
+    margin: 12px auto 0;
+    padding: 0 20px;
+    text-align: center;
+  }
+  .formula-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #6d28d9;
+  }
+  .formula-pill code {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 11px;
+    background: #ede9fe;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+
+  /* ── Status messages ── */
+  .status-wrap {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 20px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 20px;
+  }
+  .empty-icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 19px; font-weight: 700; color: #4c1d95; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; color: #7c3aed; opacity: .7; line-height: 1.7; }
+
+  .loading {
+    text-align: center;
+    padding: 64px 20px;
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid #ede9fe;
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin: 0 auto 18px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: #6d28d9; font-size: 15px; }
+
+  .error-box {
+    background: #fff1f2;
+    border: 1.5px solid #fecdd3;
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #9f1239;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .error-box strong { display: block; font-size: 16px; margin-bottom: 6px; }
+  .error-box .hint {
+    margin-top: 12px;
+    background: #ffe4e6;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #be123c;
+  }
+
+  /* ── Results ── */
+  .results-wrap {
+    max-width: 960px;
+    margin: 32px auto 48px;
+    padding: 0 20px;
+  }
+
+  .account-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 12px rgba(109,40,217,0.1);
+    margin-bottom: 24px;
+  }
+  .account-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--grad);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(109,40,217,0.25);
+  }
+  .account-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .account-info h2 { font-size: 18px; font-weight: 800; color: #1a0533; }
+  .account-info p { font-size: 13px; color: #7c3aed; margin-top: 3px; }
+  .account-link {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--purple);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 7px 14px;
+    background: #f5f3ff;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .account-link:hover { background: #ede9fe; }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Grid ── */
+  .reels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+  }
+
+  .reel-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(109,40,217,0.08);
+    overflow: hidden;
+    border: 1px solid #ede9fe;
+    transition: transform .18s, box-shadow .18s;
+    cursor: pointer;
+  }
+  .reel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(109,40,217,0.18);
+  }
+
+  .reel-thumb {
+    position: relative;
+    height: 190px;
+    background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 50px;
+    overflow: hidden;
+  }
+  .reel-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .reel-thumb .play-icon {
+    position: absolute;
+    width: 48px; height: 48px;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: white;
+    pointer-events: none;
+  }
+
+  .badge-rank {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    color: white; font-size: 12px; font-weight: 800;
+    padding: 3px 10px; border-radius: 8px;
+  }
+  .badge-score {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--grad);
+    color: white; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 8px;
+  }
+  .badge-views {
+    position: absolute; bottom: 10px; left: 10px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    color: white; font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 7px;
+  }
+
+  .reel-body { padding: 14px 16px; }
+  .reel-desc {
+    font-size: 13px; color: #374151; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; margin-bottom: 12px; min-height: 38px;
+  }
+
+  .score-bar { margin-bottom: 12px; }
+  .score-bar-bg { background: #f5f3ff; border-radius: 99px; height: 5px; overflow: hidden; }
+  .score-bar-fill {
+    height: 100%;
+    background: var(--grad);
+    border-radius: 99px;
+    transition: width .6s ease;
+  }
+
+  .stats-row { display: flex; gap: 7px; margin-bottom: 12px; }
+  .stat {
+    flex: 1; text-align: center;
+    background: #faf5ff; border-radius: 9px;
+    padding: 7px 4px; border: 1px solid #ede9fe;
+  }
+  .stat-v { font-size: 14px; font-weight: 800; color: #4c1d95; }
+  .stat-l { font-size: 9.5px; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+
+  .reel-footer { display: flex; align-items: center; justify-content: space-between; }
+  .reel-date { font-size: 11px; color: #c4b5fd; }
+  .reel-open {
+    font-size: 12px; font-weight: 700;
+    color: var(--purple); text-decoration: none;
+    padding: 5px 11px; background: #f5f3ff; border-radius: 8px;
+    transition: background .15s;
+  }
+  .reel-open:hover { background: #ede9fe; }
+
+  /* ── Footer ── */
+  .page-footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: #c4b5fd;
+  }
+
+  @media (max-width: 520px) {
+    .header { padding: 20px 16px; }
+    .reels-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .reel-thumb { height: 150px; }
+    .reel-body { padding: 10px 12px; }
+    .stats-row { gap: 5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎬 Reels Analyzer</h1>
+  <p>Топ рилсов любого публичного Instagram-аккаунта</p>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <input type="text" id="searchInput"
+      placeholder="@username или https://www.instagram.com/username/"
+      onkeydown="if(event.key==='Enter') analyze()">
+    <button id="analyzeBtn" onclick="analyze()">Анализировать</button>
+  </div>
+</div>
+
+<div class="formula-wrap">
+  <div class="formula-pill">
+    📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
+  </div>
+</div>
+
+<div id="main">
+  <div class="status-wrap">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Введи ссылку на аккаунт</h3>
+      <p>Вставь URL или username публичного Instagram-аккаунта<br>
+      и нажми «Анализировать» — найду топ рилсов по формуле популярности</p>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">Reels Analyzer · работает через Instagram API</div>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n == null || isNaN(n)) return '—';
+  n = Number(n);
+  if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
+  return n.toString();
+}
+
+function extractUsername(raw) {
+  raw = raw.trim().replace(/^@/, '');
+  const m = raw.match(/instagram\.com\/([^\/\?\s&#]+)/);
+  return m ? m[1] : raw;
+}
+
+function calcScore(views, likes, comments, timestampSec) {
+  const daysAgo = (Date.now() / 1000 - timestampSec) / 86400;
+  return (views + likes * 15 + comments * 50) / Math.sqrt(daysAgo + 1);
+}
+
+function fmtDate(ts) {
+  return new Date(ts * 1000).toLocaleDateString('ru-RU', {
+    day: 'numeric', month: 'short', year: 'numeric'
+  });
+}
+
+function daysAgo(ts) {
+  return Math.round((Date.now() / 1000 - ts) / 86400);
+}
+
+// ── Fetch via CORS proxy ───────────────────────────────────────────────────
+const PROXIES = [
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,
+];
+
+async function fetchViaProxy(url, extraHeaders = {}) {
+  for (const makeProxy of PROXIES) {
+    try {
+      const r = await fetch(makeProxy(url), {
+        headers: { 'Accept': 'application/json, text/html', ...extraHeaders },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (r.ok) return r;
+    } catch {}
+  }
+  return null;
+}
+
+// ── Instagram data fetching ────────────────────────────────────────────────
+async function fetchProfileData(username) {
+  // Method 1: web_profile_info API
+  const apiUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
+  const r = await fetchViaProxy(apiUrl, { 'x-ig-app-id': '936619743392459' });
+
+  if (r) {
+    try {
+      const json = await r.json();
+      const user = json?.data?.user;
+      if (user) return parseFromProfileAPI(user, username);
+    } catch {}
+  }
+
+  // Method 2: ?__a=1 endpoint
+  const r2 = await fetchViaProxy(`https://www.instagram.com/${encodeURIComponent(username)}/?__a=1&__d=dis`);
+  if (r2) {
+    try {
+      const json = await r2.json();
+      const user = json?.graphql?.user || json?.data?.user;
+      if (user) return parseFromProfileAPI(user, username);
+    } catch {}
+  }
+
+  // Method 3: Parse HTML page
+  const r3 = await fetchViaProxy(`https://www.instagram.com/${encodeURIComponent(username)}/`);
+  if (r3) {
+    try {
+      const html = await r3.text();
+      return parseFromHTML(html, username);
+    } catch {}
+  }
+
+  throw new Error('Не удалось получить данные аккаунта');
+}
+
+function parseFromProfileAPI(user, fallbackUsername) {
+  const edges =
+    user.edge_owner_to_timeline_media?.edges ||
+    user.edge_felix_video_timeline?.edges ||
+    [];
+
+  const reels = edges
+    .map(e => e.node)
+    .filter(n => n.is_video || n.__typename === 'GraphVideo' || n.product_type === 'clips')
+    .map(n => ({
+      shortcode: n.shortcode,
+      url: `https://www.instagram.com/reel/${n.shortcode}/`,
+      description: n.edge_media_to_caption?.edges?.[0]?.node?.text || '',
+      likes: n.edge_media_preview_like?.count || n.like_count || 0,
+      comments: n.edge_media_to_comment?.count || n.comment_count || 0,
+      views: n.video_view_count || n.play_count || 0,
+      timestamp: n.taken_at_timestamp || n.taken_at || 0,
+      thumbnail: n.thumbnail_src || n.display_url || '',
+    }));
+
+  return {
+    username: user.username || fallbackUsername,
+    fullName: user.full_name || '',
+    avatar: user.profile_pic_url_hd || user.profile_pic_url || '',
+    followers: user.edge_followed_by?.count || user.follower_count || 0,
+    reels,
+  };
+}
+
+function parseFromHTML(html, fallbackUsername) {
+  // Try __NEXT_DATA__
+  const nextMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (nextMatch) {
+    try {
+      const data = JSON.parse(nextMatch[1]);
+      const user = data?.props?.pageProps?.graphqlUser || data?.props?.pageProps?.user;
+      if (user) return parseFromProfileAPI(user, fallbackUsername);
+    } catch {}
+  }
+
+  // Try window._sharedData
+  const sharedMatch = html.match(/window\._sharedData\s*=\s*({[\s\S]*?});\s*<\/script>/);
+  if (sharedMatch) {
+    try {
+      const data = JSON.parse(sharedMatch[1]);
+      const user = data?.entry_data?.ProfilePage?.[0]?.graphql?.user;
+      if (user) return parseFromProfileAPI(user, fallbackUsername);
+    } catch {}
+  }
+
+  throw new Error('Не удалось распарсить данные страницы');
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────
+function setMain(html) {
+  document.getElementById('main').innerHTML = html;
+}
+
+function showLoading(username) {
+  setMain(`
+    <div class="status-wrap">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Загружаю данные <strong>@${username}</strong>…</p>
+      </div>
+    </div>
+  `);
+}
+
+function showError(msg, username) {
+  setMain(`
+    <div class="status-wrap">
+      <div class="error-box">
+        <strong>😕 Не получилось загрузить данные</strong>
+        ${msg}
+        <div class="hint">
+          <strong>Попробуй:</strong><br>
+          • Убедись, что аккаунт публичный<br>
+          • Проверь правильность написания username<br>
+          • Попробуй без www: <code>instagram.com/${username || 'username'}</code><br>
+          • Иногда Instagram временно блокирует запросы — попробуй через минуту
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function renderResults(profile, scoredReels) {
+  const maxScore = Math.max(...scoredReels.map(r => r.score));
+
+  let cardsHtml = '';
+  scoredReels.forEach((reel, i) => {
+    const rank = i + 1;
+    const rankLabel = rank === 1 ? '🥇 #1' : rank === 2 ? '🥈 #2' : rank === 3 ? '🥉 #3' : `#${rank}`;
+    const pct = Math.round((reel.score / maxScore) * 100);
+    const d = daysAgo(reel.timestamp);
+    const desc = reel.description
+      ? reel.description.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      : '<em style="color:#ccc">без описания</em>';
+
+    cardsHtml += `
+      <div class="reel-card" onclick="window.open('${reel.url}','_blank')">
+        <div class="reel-thumb">
+          ${reel.thumbnail
+            ? `<img src="${reel.thumbnail}" onerror="this.style.display='none'" loading="lazy"><div class="play-icon">▶</div>`
+            : '🎬'}
+          <div class="badge-rank">${rankLabel}</div>
+          <div class="badge-score">⚡ ${fmt(Math.round(reel.score))}</div>
+          ${reel.views ? `<div class="badge-views">👁 ${fmt(reel.views)}</div>` : ''}
+        </div>
+        <div class="reel-body">
+          <div class="reel-desc">${desc}</div>
+          <div class="score-bar">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-v">❤️ ${fmt(reel.likes)}</div>
+              <div class="stat-l">лайки</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">💬 ${fmt(reel.comments)}</div>
+              <div class="stat-l">коммент.</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">📅 ${d}д</div>
+              <div class="stat-l">назад</div>
+            </div>
+          </div>
+          <div class="reel-footer">
+            <span class="reel-date">${fmtDate(reel.timestamp)}</span>
+            <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">Открыть →</a>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  const avatarHtml = profile.avatar
+    ? `<div class="account-avatar"><img src="${profile.avatar}" onerror="this.parentElement.textContent='📸'"></div>`
+    : `<div class="account-avatar">📸</div>`;
+
+  const followersStr = profile.followers ? ` · ${fmt(profile.followers)} подписчиков` : '';
+
+  setMain(`
+    <div class="results-wrap">
+      <div class="account-card">
+        ${avatarHtml}
+        <div class="account-info">
+          <h2>@${profile.username}${profile.fullName ? ' · ' + profile.fullName : ''}</h2>
+          <p>Топ ${scoredReels.length} рилсов${followersStr}</p>
+        </div>
+        <a class="account-link" href="https://www.instagram.com/${profile.username}/" target="_blank">Профиль →</a>
+      </div>
+      <div class="section-title">Рилсы по популярности</div>
+      <div class="reels-grid">${cardsHtml}</div>
+    </div>
+  `);
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────
+async function analyze() {
+  const raw = document.getElementById('searchInput').value.trim();
+  if (!raw) return;
+
+  const username = extractUsername(raw);
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Загрузка…';
+
+  showLoading(username);
+
+  try {
+    const profile = await fetchProfileData(username);
+
+    if (!profile.reels.length) {
+      showError('Рилсы не найдены. Возможно, у аккаунта нет видео или он закрытый.', username);
+      return;
+    }
+
+    const scored = profile.reels
+      .map(r => ({ ...r, score: calcScore(r.views, r.likes, r.comments, r.timestamp) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12);
+
+    renderResults(profile, scored);
+  } catch (err) {
+    showError(err.message || 'Неизвестная ошибка', username);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Анализировать';
+  }
+}
+</script>
+</body>
+</html>
