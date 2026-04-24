@@ -153,6 +153,76 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 }
 .reel-open:hover { background: #ede9fe; }
 
+/* ── Text button ── */
+.reel-text-btn {
+  font-size: 12px; font-weight: 700; color: #6d28d9; background: #f5f3ff;
+  border: 1px solid #ddd6fe; border-radius: 7px; padding: 4px 9px;
+  cursor: pointer; transition: background .15s; white-space: nowrap;
+}
+.reel-text-btn:hover { background: #ede9fe; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  backdrop-filter: blur(4px); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; transition: opacity .2s;
+}
+.modal-overlay.visible { opacity: 1; }
+.modal {
+  background: white; border-radius: 20px; max-width: 520px; width: 100%;
+  max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(109,40,217,.25);
+  transform: translateY(16px); transition: transform .2s;
+}
+.modal-overlay.visible .modal { transform: translateY(0); }
+
+.modal-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 20px 14px; border-bottom: 1px solid #f3f4f6;
+  position: sticky; top: 0; background: white; border-radius: 20px 20px 0 0;
+}
+.modal-thumb {
+  width: 48px; height: 48px; border-radius: 10px; object-fit: cover;
+  background: linear-gradient(135deg,#ede9fe,#fce7f3); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.modal-thumb img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; }
+.modal-meta { flex: 1; min-width: 0; }
+.modal-meta strong { display: block; font-size: 14px; color: #1a0533; }
+.modal-meta span { font-size: 12px; color: #9ca3af; }
+.modal-close {
+  background: #f5f3ff; border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; font-size: 18px; color: #7c3aed;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background .15s;
+}
+.modal-close:hover { background: #ede9fe; }
+
+.modal-body { padding: 18px 20px 20px; }
+.modal-text {
+  font-size: 14px; line-height: 1.7; color: #374151;
+  white-space: pre-wrap; word-break: break-word;
+  background: #faf5ff; border-radius: 12px; padding: 14px 16px;
+  border: 1px solid #ede9fe; margin-bottom: 14px;
+  max-height: 320px; overflow-y: auto;
+}
+.modal-text.empty { color: #c4b5fd; font-style: italic; }
+.modal-actions { display: flex; gap: 8px; }
+.modal-copy-btn {
+  background: var(--grad); color: white; border: none; border-radius: 9px;
+  padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: opacity .15s;
+}
+.modal-copy-btn:hover { opacity: .88; }
+.modal-open-btn {
+  color: var(--purple); background: #f5f3ff; border: 1px solid #ddd6fe;
+  border-radius: 9px; padding: 9px 16px; font-size: 13px; font-weight: 700;
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+  transition: background .15s;
+}
+.modal-open-btn:hover { background: #ede9fe; }
+
 .page-footer { text-align: center; padding: 20px; font-size: 12px; color: #c4b5fd; }
 
 @media (max-width: 520px) {
@@ -164,6 +234,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </style>
 </head>
 <body>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-thumb" id="modalThumb">🎬</div>
+      <div class="modal-meta">
+        <strong id="modalAccount"></strong>
+        <span id="modalDate"></span>
+      </div>
+      <button class="modal-close" onclick="hideModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-text" id="modalText"></div>
+      <div class="modal-actions">
+        <button class="modal-copy-btn" onclick="copyText()">📋 Скопировать</button>
+        <a class="modal-open-btn" id="modalLink" href="#" target="_blank">Открыть рилс →</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="header">
   <h1>🎬 Reels Analyzer</h1>
@@ -378,6 +469,7 @@ async function fetchAndRender() {
 
   // Sort all reels by score
   allReels.sort((a,b) => b.score - a.score);
+  _allReelsCache = allReels; // сохраняем для модала
 
   const maxScore   = allReels[0].score;
   const dateFrom   = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
@@ -423,7 +515,10 @@ async function fetchAndRender() {
           </div>
           <div class="reel-footer">
             <span class="reel-date">${fmtDate(reel.timestamp)} · ${d}д назад</span>
-            <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">Открыть →</a>
+            <div style="display:flex;gap:6px">
+              <button class="reel-text-btn" onclick="event.stopPropagation(); showText(${i})">📝 Текст</button>
+              <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">→</a>
+            </div>
           </div>
         </div>
       </div>`;
@@ -442,6 +537,65 @@ async function fetchAndRender() {
     <div class="reels-grid">${cardsHtml}</div>
   `);
 }
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+let _allReelsCache = [];
+
+function showText(index) {
+  const reel = _allReelsCache[index];
+  if (!reel) return;
+
+  // Thumbnail
+  const thumbEl = document.getElementById('modalThumb');
+  if (reel.thumbnail) {
+    thumbEl.innerHTML = `<img src="${reel.thumbnail}" onerror="this.parentElement.innerHTML='🎬'">`;
+  } else {
+    thumbEl.innerHTML = '🎬';
+  }
+
+  // Meta
+  document.getElementById('modalAccount').textContent = `@${reel.accountUsername}`;
+  document.getElementById('modalDate').textContent = `${fmtDate(reel.timestamp)} · 👁 ${fmt(reel.views)}  ❤️ ${fmt(reel.likes)}  💬 ${fmt(reel.comments)}`;
+  document.getElementById('modalLink').href = reel.url;
+
+  // Text
+  const textEl = document.getElementById('modalText');
+  if (reel.description && reel.description.trim()) {
+    textEl.textContent = reel.description;
+    textEl.classList.remove('empty');
+  } else {
+    textEl.textContent = 'Описание отсутствует';
+    textEl.classList.add('empty');
+  }
+
+  // Show
+  const overlay = document.getElementById('modalOverlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('visible'));
+  document.body.style.overflow = 'hidden';
+}
+
+function hideModal() {
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('visible');
+  setTimeout(() => { overlay.style.display = 'none'; }, 200);
+  document.body.style.overflow = '';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) hideModal();
+}
+
+function copyText() {
+  const text = document.getElementById('modalText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.modal-copy-btn');
+    btn.textContent = '✅ Скопировано!';
+    setTimeout(() => btn.textContent = '📋 Скопировать', 1800);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideModal(); });
 
 // ── Init ──────────────────────────────────────────────────────────────────
 renderChips();
