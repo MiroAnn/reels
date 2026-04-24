@@ -374,60 +374,36 @@ function daysAgo(ts) {
   return Math.round((Date.now() / 1000 - ts) / 86400);
 }
 
-// ── Fetch via CORS proxy ───────────────────────────────────────────────────
-const PROXIES = [
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u => `https://thingproxy.freeboard.io/fetch/${u}`,
-];
+// ── Instagram data fetching через Cloudflare Worker ───────────────────────
+const WORKER_URL = 'https://summer-lab-a729.proludey.workers.dev';
 
-async function fetchViaProxy(url, extraHeaders = {}) {
-  for (const makeProxy of PROXIES) {
-    try {
-      const r = await fetch(makeProxy(url), {
-        headers: { 'Accept': 'application/json, text/html', ...extraHeaders },
-        signal: AbortSignal.timeout(12000),
-      });
-      if (r.ok) return r;
-    } catch {}
-  }
-  return null;
-}
-
-// ── Instagram data fetching ────────────────────────────────────────────────
 async function fetchProfileData(username) {
-  // Method 1: web_profile_info API
-  const apiUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
-  const r = await fetchViaProxy(apiUrl, { 'x-ig-app-id': '936619743392459' });
+  const url = `${WORKER_URL}/?username=${encodeURIComponent(username)}`;
 
-  if (r) {
-    try {
-      const json = await r.json();
-      const user = json?.data?.user;
-      if (user) return parseFromProfileAPI(user, username);
-    } catch {}
+  let resp;
+  try {
+    resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  } catch (e) {
+    throw new Error('Не удалось подключиться к серверу. Проверь интернет-соединение.');
   }
 
-  // Method 2: ?__a=1 endpoint
-  const r2 = await fetchViaProxy(`https://www.instagram.com/${encodeURIComponent(username)}/?__a=1&__d=dis`);
-  if (r2) {
-    try {
-      const json = await r2.json();
-      const user = json?.graphql?.user || json?.data?.user;
-      if (user) return parseFromProfileAPI(user, username);
-    } catch {}
+  let json;
+  try {
+    json = await resp.json();
+  } catch {
+    throw new Error('Сервер вернул некорректный ответ.');
   }
 
-  // Method 3: Parse HTML page
-  const r3 = await fetchViaProxy(`https://www.instagram.com/${encodeURIComponent(username)}/`);
-  if (r3) {
-    try {
-      const html = await r3.text();
-      return parseFromHTML(html, username);
-    } catch {}
+  if (!resp.ok) {
+    throw new Error(json?.error || `Ошибка сервера: ${resp.status}`);
   }
 
-  throw new Error('Не удалось получить данные аккаунта');
+  const user = json?.data?.user;
+  if (!user) {
+    throw new Error('Аккаунт не найден или он закрытый.');
+  }
+
+  return parseFromProfileAPI(user, username);
 }
 
 function parseFromProfileAPI(user, fallbackUsername) {
