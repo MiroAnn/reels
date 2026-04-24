@@ -382,81 +382,33 @@ async function fetchProfileData(username) {
 
   let resp;
   try {
-    resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    resp = await fetch(url, { signal: AbortSignal.timeout(20000) });
   } catch (e) {
     throw new Error('Не удалось подключиться к серверу. Проверь интернет-соединение.');
   }
 
-  let json;
+  let data;
   try {
-    json = await resp.json();
+    data = await resp.json();
   } catch {
     throw new Error('Сервер вернул некорректный ответ.');
   }
 
   if (!resp.ok) {
-    throw new Error(json?.error || `Ошибка сервера: ${resp.status}`);
+    throw new Error(data?.error || `Ошибка сервера: ${resp.status}`);
   }
 
-  const user = json?.data?.user;
-  if (!user) {
+  if (!data?.user) {
     throw new Error('Аккаунт не найден или он закрытый.');
   }
 
-  return parseFromProfileAPI(user, username);
-}
-
-function parseFromProfileAPI(user, fallbackUsername) {
-  const edges =
-    user.edge_owner_to_timeline_media?.edges ||
-    user.edge_felix_video_timeline?.edges ||
-    [];
-
-  const reels = edges
-    .map(e => e.node)
-    .filter(n => n.is_video || n.__typename === 'GraphVideo' || n.product_type === 'clips')
-    .map(n => ({
-      shortcode: n.shortcode,
-      url: `https://www.instagram.com/reel/${n.shortcode}/`,
-      description: n.edge_media_to_caption?.edges?.[0]?.node?.text || '',
-      likes: n.edge_media_preview_like?.count || n.like_count || 0,
-      comments: n.edge_media_to_comment?.count || n.comment_count || 0,
-      views: n.video_view_count || n.play_count || 0,
-      timestamp: n.taken_at_timestamp || n.taken_at || 0,
-      thumbnail: n.thumbnail_src || n.display_url || '',
-    }));
-
   return {
-    username: user.username || fallbackUsername,
-    fullName: user.full_name || '',
-    avatar: user.profile_pic_url_hd || user.profile_pic_url || '',
-    followers: user.edge_followed_by?.count || user.follower_count || 0,
-    reels,
+    username:  data.user.username,
+    fullName:  data.user.full_name,
+    avatar:    data.user.avatar,
+    followers: data.user.followers,
+    reels:     data.reels || [],
   };
-}
-
-function parseFromHTML(html, fallbackUsername) {
-  // Try __NEXT_DATA__
-  const nextMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-  if (nextMatch) {
-    try {
-      const data = JSON.parse(nextMatch[1]);
-      const user = data?.props?.pageProps?.graphqlUser || data?.props?.pageProps?.user;
-      if (user) return parseFromProfileAPI(user, fallbackUsername);
-    } catch {}
-  }
-
-  // Try window._sharedData
-  const sharedMatch = html.match(/window\._sharedData\s*=\s*({[\s\S]*?});\s*<\/script>/);
-  if (sharedMatch) {
-    try {
-      const data = JSON.parse(sharedMatch[1]);
-      const user = data?.entry_data?.ProfilePage?.[0]?.graphql?.user;
-      if (user) return parseFromProfileAPI(user, fallbackUsername);
-    } catch {}
-  }
-
-  throw new Error('Не удалось распарсить данные страницы');
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────
