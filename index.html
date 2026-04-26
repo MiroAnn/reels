@@ -229,21 +229,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <!-- ══ Page: Все тренды ══ -->
 <div id="page-trends" style="display:none">
-  <div class="hashtag-section">
-    <div class="hashtag-label">🔍 Хэштеги:</div>
-    <div class="hashtag-chips-row" id="hashtagChipsRow"></div>
-    <button class="load-btn" onclick="loadTrends()">Загрузить тренды</button>
-    <button class="load-btn" style="background:#4b5563;font-size:11px;padding:8px 10px" onclick="debugHashtag()">🔍 Debug</button>
+  <div class="accounts-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      <span style="font-size:12px;color:#7c3aed;font-weight:700">🔥 Опорные аккаунты — добавь топ-блогеров своей ниши (до 30)</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="syncStatus" style="font-size:11px;color:#9ca3af"></span>
+        <button id="shareBtn" class="add-btn" style="background:#6d28d9;font-size:11px;padding:5px 12px" onclick="createShareLink()">🔗 Поделиться</button>
+      </div>
+    </div>
+    <div class="add-row">
+      <input type="text" id="trendsAddInput"
+        placeholder="@username или ссылка на аккаунт"
+        onkeydown="if(event.key==='Enter') handleTrendsAdd()">
+      <button class="add-btn" onclick="handleTrendsAdd()">+ Добавить</button>
+    </div>
+    <div class="chips-row" id="trendsChipsRow"></div>
   </div>
-  <div class="trends-info">
-    📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
-    &nbsp;·&nbsp; фильтр: последние 7 дней &nbsp;·&nbsp; топ из Instagram по выбранным хэштегам
+  <div class="formula-bar" style="justify-content:space-between">
+    <span>📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code> &nbsp;·&nbsp; топ за 7 дней</span>
+    <button class="load-btn" style="padding:5px 14px;font-size:12px" onclick="loadTrends()">⚡ Загрузить тренды</button>
   </div>
   <div class="content"><div id="trends-main">
     <div class="empty-state">
       <div class="empty-icon">🔥</div>
-      <h3>Тренды ещё не загружены</h3>
-      <p>Выбери хэштеги выше и нажми «Загрузить тренды».<br>Показываем рилсы с наибольшим охватом за последнюю неделю.</p>
+      <h3>Добавь опорные аккаунты</h3>
+      <p>Добавь 10–30 топ-блогеров своей ниши выше.<br>Сервис покажет лучшие рилсы за последние 7 дней по всем сразу.</p>
     </div>
   </div></div>
 </div>
@@ -518,95 +528,118 @@ function renderReels(feed, allReels, errors) {
     <div class="reels-grid">${cards}</div>`);
 }
 
-// ── Hashtag trends ────────────────────────────────────────────────────────
-const HASHTAGS = [
-  { tag: 'предпринимательство', on: true },
-  { tag: 'бизнес',              on: true },
-  { tag: 'саморазвитие',        on: true },
-  { tag: 'мотивация',           on: false },
-  { tag: 'маркетинг',           on: false },
-  { tag: 'успех',               on: false },
-  { tag: 'entrepreneur',        on: true },
-  { tag: 'business',            on: false },
-  { tag: 'selfdevelopment',     on: false },
-];
+// ── Trends accounts (shared list) ────────────────────────────────────────
+const TRENDS_KEY = 'trends_accounts_v1';
+let trendsAccounts = JSON.parse(localStorage.getItem(TRENDS_KEY) || '[]');
 
-function renderHashtagChips() {
-  document.getElementById('hashtagChipsRow').innerHTML = HASHTAGS.map((h, i) => `
-    <div class="hashtag-chip ${h.on ? 'on' : ''}" onclick="toggleHashtag(${i})">#${h.tag}</div>
-  `).join('');
-}
-function toggleHashtag(i) {
-  HASHTAGS[i].on = !HASHTAGS[i].on;
-  renderHashtagChips();
+function saveTrendsAccounts() {
+  localStorage.setItem(TRENDS_KEY, JSON.stringify(trendsAccounts));
 }
 
-async function debugHashtag() {
-  const tag = HASHTAGS.find(h => h.on)?.tag || 'бизнес';
-  const main = document.getElementById('trends-main');
-  main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Запрашиваю debug для #${tag}…</p></div>`;
+function renderTrendsChips() {
+  const row = document.getElementById('trendsChipsRow');
+  if (!trendsAccounts.length) {
+    row.innerHTML = '<span class="no-accounts">Добавь аккаунты — они сохранятся и синхронизируются</span>'; return;
+  }
+  row.innerHTML = trendsAccounts.map(u => `
+    <div class="chip" id="tchip-${u}">
+      <div class="chip-ph" id="tchip-av-${u}">@</div>
+      <span>@${u}</span>
+      <button class="chip-del" onclick="removeTrendsAccount('${u}')">×</button>
+    </div>
+  `).join('') + `<span style="font-size:11px;color:#c4b5fd">${trendsAccounts.length}/30</span>`;
+}
+
+function handleTrendsAdd() {
+  const raw = document.getElementById('trendsAddInput').value.trim();
+  if (!raw) return;
+  const username = extractUsername(raw);
+  if (!username) return;
+  if (trendsAccounts.length >= 30) { alert('Максимум 30 аккаунтов'); return; }
+  if (trendsAccounts.map(a => a.toLowerCase()).includes(username.toLowerCase())) { alert(`@${username} уже добавлен`); return; }
+  trendsAccounts.push(username);
+  saveTrendsAccounts();
+  document.getElementById('trendsAddInput').value = '';
+  renderTrendsChips();
+}
+
+function removeTrendsAccount(username) {
+  trendsAccounts = trendsAccounts.filter(a => a.toLowerCase() !== username.toLowerCase());
+  saveTrendsAccounts();
+  renderTrendsChips();
+}
+
+// ── Share via URL (no server needed) ─────────────────────────────────────
+function createShareLink() {
+  if (!trendsAccounts.length) { alert('Сначала добавь аккаунты'); return; }
   try {
-    const resp = await fetch(`${WORKER_URL}/?action=debug_hashtag&tag=${encodeURIComponent(tag)}`);
-    const data = await resp.json();
-    main.innerHTML = `<div style="background:#1a1a2e;color:#a0f0a0;font-family:monospace;font-size:11px;padding:16px;border-radius:12px;overflow:auto;max-height:70vh;white-space:pre-wrap;word-break:break-all">${JSON.stringify(data, null, 2)}</div>`;
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(trendsAccounts))));
+    const shareUrl = `${location.origin}${location.pathname}?share=${encoded}`;
+    navigator.clipboard.writeText(shareUrl).catch(() => {});
+    history.replaceState(null, '', `?share=${encoded}`);
+    alert(`✅ Ссылка скопирована!\n\n${shareUrl}\n\nКоллега откроет её и увидит твои аккаунты.\nЕсли кто-то изменит список — нажми «Поделиться» снова, чтобы обновить ссылку.`);
   } catch(e) {
-    main.innerHTML = `<div style="color:red;padding:16px">Debug error: ${e.message}</div>`;
+    alert('Ошибка: ' + e.message);
   }
 }
 
+// ── Load trends (uses same fetchAccount as feeds) ─────────────────────────
 async function loadTrends() {
-  const active = HASHTAGS.filter(h => h.on);
-  if (!active.length) { alert('Выбери хотя бы один хэштег'); return; }
-  const main = document.getElementById('trends-main');
-  main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Загружаю тренды…</p><div class="loading-progress" id="trendsProgress">Хэштег 0 из ${active.length}</div></div>`;
-  const allReels = [];
-  const debugAll = [];
-  for (let i = 0; i < active.length; i++) {
-    const h = active[i];
-    document.getElementById('trendsProgress').textContent = `#${h.tag} (${i+1} из ${active.length})…`;
-    try {
-      const resp = await fetch(`${WORKER_URL}/?action=hashtag&tag=${encodeURIComponent(h.tag)}`);
-      const data = await resp.json();
-      if (data.debug) debugAll.push({ tag: h.tag, debug: data.debug });
-      if (data.reels) {
-        allReels.push(...data.reels.map(r => ({ ...r, accountUsername: r.username, accountAvatar: r.avatar })));
-      }
-    } catch(e) { console.warn(`#${h.tag}:`, e); debugAll.push({ tag: h.tag, error: e.message }); }
+  if (!trendsAccounts.length) {
+    alert('Добавь хотя бы один аккаунт'); return;
   }
-  // Filter last 7 days; fallback to 30 days if too few results
-  const weekAgo  = Date.now() - 7  * 24 * 3600 * 1000;
+  const main = document.getElementById('trends-main');
+  main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Загружаю тренды…</p><div class="loading-progress" id="trendsProgress">0 / ${trendsAccounts.length} аккаунтов</div></div>`;
+  trendsAccounts.forEach(u => { const c = document.getElementById(`tchip-${u}`); if(c) c.classList.add('chip-loading'); });
+
+  let done = 0;
+  const results = await Promise.allSettled(trendsAccounts.map(async u => {
+    try {
+      const r = await fetchAccount(u);
+      const el = document.getElementById(`tchip-av-${u}`);
+      if (el && r.profile.avatar) el.outerHTML = `<img id="tchip-av-${u}" src="${r.profile.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
+      const c = document.getElementById(`tchip-${u}`); if(c) { c.classList.remove('chip-loading'); }
+      done++;
+      const el2 = document.getElementById('trendsProgress');
+      if (el2) el2.textContent = `${done} / ${trendsAccounts.length} аккаунтов`;
+      return r;
+    } catch(e) {
+      const c = document.getElementById(`tchip-${u}`); if(c) { c.classList.remove('chip-loading'); c.classList.add('chip-error'); }
+      done++; throw e;
+    }
+  }));
+
+  // Collect all reels, filter last 7 days (fallback 30)
+  const allReels = results.flatMap(r => r.status === 'fulfilled' ? r.value.reels : []);
+  const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
   const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
   let filtered = allReels.filter(r => r.timestamp > weekAgo);
-  let period   = '7 дней';
-  if (filtered.length < 5) {
-    filtered = allReels.filter(r => r.timestamp > monthAgo);
-    period   = '30 дней';
-  }
-  // Deduplicate by shortcode
-  const seen   = new Set();
-  const unique = filtered.filter(r => { if (!r.shortcode || seen.has(r.shortcode)) return false; seen.add(r.shortcode); return true; });
-  // Score
-  const scored = unique.map(r => ({ ...r, score: calcScore(r) })).sort((a,b) => b.score - a.score);
+  let period = '7 дней';
+  if (filtered.length < 5) { filtered = allReels.filter(r => r.timestamp > monthAgo); period = '30 дней'; }
+
+  const seen = new Set();
+  const unique = filtered.filter(r => { if(!r.shortcode||seen.has(r.shortcode)) return false; seen.add(r.shortcode); return true; });
+  const scored = unique.sort((a,b) => b.score - a.score);
   _trendsReels = scored;
-  renderTrendingReels(scored, period, active.length);
+  renderTrendingReels(scored, period);
 }
 
-function renderTrendingReels(reels, period, hashtagCount) {
+function renderTrendingReels(reels, period) {
   const main = document.getElementById('trends-main');
   if (!reels.length) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><h3>Рилсы не найдены</h3><p>Instagram не вернул рилсы по выбранным хэштегам.<br>Попробуй другие хэштеги или повтори позже.</p><br><button class="load-btn" style="margin:0 auto" onclick="debugHashtag()">🔍 Debug — посмотреть ответ Instagram</button></div>`; return;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><h3>Нет рилсов за ${period}</h3><p>Аккаунты не публиковали рилсы за этот период.</p></div>`; return;
   }
   const maxScore = reels[0].score;
   const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   const dateFrom = new Date(Date.now() - (period==='7 дней'?7:30)*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const cards    = reels.map((r, i) => buildCard(r, i, maxScore, 'trends', true)).join('');
+  const cards    = reels.map((r, i) => buildCard(r, i, maxScore, 'trends', false)).join('');
   main.innerHTML = `
     <div class="period-bar">
       <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
-      <span>${hashtagCount} хэштег${hashtagCount>4?'ов':hashtagCount>1?'а':''}</span>
+      <span>${trendsAccounts.length} аккаунтов</span>
       <div class="period-count">${reels.length} рилсов</div>
     </div>
-    <div class="section-title">Трендовые рилсы за ${period}</div>
+    <div class="section-title">Топ рилсы за ${period}</div>
     <div class="reels-grid">${cards}</div>`;
 }
 
@@ -699,7 +732,26 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') hideModal(); }
 renderTabs();
 renderChips();
 renderMain();
-renderHashtagChips();
+renderTrendsChips();
+
+// Check if opened via share link
+(() => {
+  const params = new URLSearchParams(location.search);
+  const encoded = params.get('share');
+  if (encoded) {
+    try {
+      const accounts = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+      if (Array.isArray(accounts) && accounts.length) {
+        trendsAccounts = accounts;
+        saveTrendsAccounts();
+        renderTrendsChips();
+        showPage('trends');
+        const el = document.getElementById('syncStatus');
+        if (el) { el.textContent = `📋 Загружено ${accounts.length} аккаунтов по ссылке`; el.style.color = '#7c3aed'; }
+      }
+    } catch(e) { console.warn('Bad share param', e); }
+  }
+})();
 </script>
 </body>
 </html>
