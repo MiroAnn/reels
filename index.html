@@ -233,6 +233,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="hashtag-label">🔍 Хэштеги:</div>
     <div class="hashtag-chips-row" id="hashtagChipsRow"></div>
     <button class="load-btn" onclick="loadTrends()">Загрузить тренды</button>
+    <button class="load-btn" style="background:#4b5563;font-size:11px;padding:8px 10px" onclick="debugHashtag()">🔍 Debug</button>
   </div>
   <div class="trends-info">
     📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
@@ -540,22 +541,37 @@ function toggleHashtag(i) {
   renderHashtagChips();
 }
 
+async function debugHashtag() {
+  const tag = HASHTAGS.find(h => h.on)?.tag || 'бизнес';
+  const main = document.getElementById('trends-main');
+  main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Запрашиваю debug для #${tag}…</p></div>`;
+  try {
+    const resp = await fetch(`${WORKER_URL}/?action=debug_hashtag&tag=${encodeURIComponent(tag)}`);
+    const data = await resp.json();
+    main.innerHTML = `<div style="background:#1a1a2e;color:#a0f0a0;font-family:monospace;font-size:11px;padding:16px;border-radius:12px;overflow:auto;max-height:70vh;white-space:pre-wrap;word-break:break-all">${JSON.stringify(data, null, 2)}</div>`;
+  } catch(e) {
+    main.innerHTML = `<div style="color:red;padding:16px">Debug error: ${e.message}</div>`;
+  }
+}
+
 async function loadTrends() {
   const active = HASHTAGS.filter(h => h.on);
   if (!active.length) { alert('Выбери хотя бы один хэштег'); return; }
   const main = document.getElementById('trends-main');
   main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Загружаю тренды…</p><div class="loading-progress" id="trendsProgress">Хэштег 0 из ${active.length}</div></div>`;
   const allReels = [];
+  const debugAll = [];
   for (let i = 0; i < active.length; i++) {
     const h = active[i];
     document.getElementById('trendsProgress').textContent = `#${h.tag} (${i+1} из ${active.length})…`;
     try {
       const resp = await fetch(`${WORKER_URL}/?action=hashtag&tag=${encodeURIComponent(h.tag)}`);
       const data = await resp.json();
+      if (data.debug) debugAll.push({ tag: h.tag, debug: data.debug });
       if (data.reels) {
         allReels.push(...data.reels.map(r => ({ ...r, accountUsername: r.username, accountAvatar: r.avatar })));
       }
-    } catch(e) { console.warn(`#${h.tag}:`, e); }
+    } catch(e) { console.warn(`#${h.tag}:`, e); debugAll.push({ tag: h.tag, error: e.message }); }
   }
   // Filter last 7 days; fallback to 30 days if too few results
   const weekAgo  = Date.now() - 7  * 24 * 3600 * 1000;
@@ -578,7 +594,7 @@ async function loadTrends() {
 function renderTrendingReels(reels, period, hashtagCount) {
   const main = document.getElementById('trends-main');
   if (!reels.length) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><h3>Рилсы не найдены</h3><p>Instagram не вернул рилсы по выбранным хэштегам.<br>Попробуй другие хэштеги или повтори позже.</p></div>`; return;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><h3>Рилсы не найдены</h3><p>Instagram не вернул рилсы по выбранным хэштегам.<br>Попробуй другие хэштеги или повтори позже.</p><br><button class="load-btn" style="margin:0 auto" onclick="debugHashtag()">🔍 Debug — посмотреть ответ Instagram</button></div>`; return;
   }
   const maxScore = reels[0].score;
   const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
