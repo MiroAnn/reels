@@ -366,10 +366,20 @@ async function fetchAccount(username) {
   if (!resp.ok) throw new Error(data?.error || `Ошибка ${resp.status}`);
   if (!data?.user) throw new Error('Аккаунт не найден или закрытый');
   const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
-  const top10 = (data.reels || [])
-    .filter(r => r.timestamp > monthAgo)
-    .map(r => ({ ...r, score: calcScore(r), accountUsername: data.user.username, accountAvatar: data.user.avatar }))
-    .sort((a,b) => b.score - a.score).slice(0, 10);
+  const mapped = (data.reels || []).map(r => ({
+    ...r,
+    // fix taken_at=0: treat as unknown (use Date.now so score isn't penalised to zero)
+    timestamp: r.timestamp > 1000000000000 ? r.timestamp : Date.now(),
+    score: 0,
+    accountUsername: data.user.username,
+    accountAvatar: data.user.avatar,
+  })).map(r => ({ ...r, score: calcScore(r) }));
+
+  // prefer reels within 30 days; fall back to all if none pass the filter
+  const recent = mapped.filter(r => r.timestamp >= monthAgo);
+  const pool   = recent.length ? recent : mapped;
+  const top10  = pool.sort((a,b) => b.score - a.score).slice(0, 10)
+                     .map(r => ({ ...r, _stale: !recent.length }));
   return { profile: data.user, reels: top10 };
 }
 
@@ -456,16 +466,18 @@ function buildCard(reel, i, maxScore) {
 function renderReels(feed, allReels, errors) {
   _feedsReels = allReels;
   if (!allReels.length) {
-    setMain(`<div class="empty-state"><div class="empty-icon">😕</div><h3>Нет рилсов за последний месяц</h3><p>Ни один аккаунт не публиковал рилсы за 30 дней</p></div>`); return;
+    setMain(`<div class="empty-state"><div class="empty-icon">😕</div><h3>Рилсы не найдены</h3><p>Instagram не вернул рилсы для этих аккаунтов.<br>Возможно, аккаунты закрытые или пустые.</p></div>`); return;
   }
-  const maxScore  = allReels[0].score;
-  const dateFrom  = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const dateTo    = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const ok        = feed.accounts.length - errors.length;
+  const maxScore = allReels[0].score;
+  const dateFrom = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const ok       = feed.accounts.length - errors.length;
+  const hasStale = allReels.some(r => r._stale);
   let errHtml = '';
   if (errors.length) errHtml = `<div class="errors-box"><strong>⚠️ Не загрузились (${errors.length}):</strong>${errors.map(e=>`@${e.username}: ${e.error}`).join(' · ')}</div>`;
+  const staleHtml = hasStale ? `<div class="errors-box" style="background:#fdf4ff;border-color:#ddd6fe;color:#6b21a8">⚠️ У некоторых аккаунтов Instagram не вернул дату публикации — показаны последние доступные рилсы</div>` : '';
   const cards = allReels.map((r, i) => buildCard(r, i, maxScore)).join('');
-  setMain(`${errHtml}
+  setMain(`${errHtml}${staleHtml}
     <div class="period-bar">
       <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
       <span>${ok} из ${feed.accounts.length} аккаунтов</span>
