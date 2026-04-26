@@ -515,7 +515,9 @@ function showModal(idx) {
   } else if (!reel.video_url) {
     area.innerHTML = `<div class="transcription-error">⚠️ URL видео недоступен</div>`;
   } else {
-    area.innerHTML = `<button class="transcribe-btn" onclick="startTranscription()">🎤 Расшифровать аудио</button>`;
+    // auto-start transcription
+    area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
+    startTranscription();
   }
 
   const ov = document.getElementById('modalOverlay');
@@ -528,7 +530,10 @@ async function startTranscription() {
   const reel = _feedsReels[_currentIdx];
   if (!reel?.video_url) return;
   const area = document.getElementById('transcriptionArea');
-  area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
+  // show spinner only if not already shown
+  if (!area.querySelector('.transcription-loading')) {
+    area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
+  }
   try {
     const resp = await fetch(`${WORKER_URL}/?action=transcribe&video_url=${encodeURIComponent(reel.video_url)}`, { signal: AbortSignal.timeout(90000) });
     const data = await resp.json();
