@@ -5,93 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎬 Reels Analyzer</title>
 <style>
-:root {
-  --purple: #7c3aed;
-  --pink: #db2777;
-  --grad: linear-gradient(135deg, #6b21a8, #db2777, #f97316);
-}
+:root { --purple: #7c3aed; --pink: #db2777; --grad: linear-gradient(135deg, #6b21a8, #db2777, #f97316); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f3ff; color: #111; min-height: 100vh; }
 
 /* ── Header ── */
-.header { background: var(--grad); padding: 18px 28px 14px; color: white; display: flex; align-items: center; gap: 12px; }
-.header h1 { font-size: 20px; font-weight: 900; letter-spacing: -.3px; flex: 1; }
-.header p  { font-size: 12px; opacity: .75; }
+.header { background: var(--grad); padding: 14px 20px; color: white; display: flex; align-items: center; gap: 12px; }
+.header-title { flex: 1; }
+.header-title h1 { font-size: 19px; font-weight: 900; letter-spacing: -.3px; }
+.header-title p  { font-size: 11px; opacity: .7; margin-top: 1px; }
+
+/* ── Nav buttons ── */
+.header-nav { display: flex; gap: 6px; flex-shrink: 0; }
+.nav-btn {
+  background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.35);
+  color: white; border-radius: 10px; padding: 7px 13px;
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.nav-btn:hover:not(.active) { background: rgba(255,255,255,.28); }
+.nav-btn.active { background: rgba(255,255,255,.92); color: #6b21a8; border-color: transparent; }
 
 /* ── Tabs bar ── */
-.tabs-bar {
-  background: white; border-bottom: 2px solid #ede9fe;
-  padding: 0 20px; display: flex; align-items: stretch;
-  overflow-x: auto; gap: 2px; min-height: 46px;
-}
+.tabs-bar { background: white; border-bottom: 2px solid #ede9fe; padding: 0 20px; display: flex; align-items: stretch; overflow-x: auto; gap: 2px; min-height: 44px; }
 .tabs-bar::-webkit-scrollbar { height: 0; }
-
-.tab {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0 14px; border-bottom: 3px solid transparent;
-  cursor: pointer; white-space: nowrap; font-size: 13px;
-  font-weight: 600; color: #9ca3af; transition: color .15s;
-  position: relative; user-select: none;
-}
+.tab { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; color: #9ca3af; transition: color .15s; user-select: none; }
 .tab:hover { color: var(--purple); }
 .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
-
 .tab-name { outline: none; background: transparent; border: none; font: inherit; color: inherit; cursor: pointer; max-width: 120px; }
-.tab-name:focus {
-  background: #f5f3ff; border-radius: 5px; padding: 1px 5px;
-  color: #4c1d95; cursor: text;
-}
-
-.tab-del {
-  background: none; border: none; cursor: pointer; font-size: 14px;
-  color: #d1d5db; padding: 0; line-height: 1; transition: color .15s;
-  opacity: 0;
-}
+.tab-name:focus { background: #f5f3ff; border-radius: 5px; padding: 1px 5px; color: #4c1d95; cursor: text; }
+.tab-del { background: none; border: none; cursor: pointer; font-size: 14px; color: #d1d5db; padding: 0; line-height: 1; transition: color .15s; opacity: 0; }
 .tab:hover .tab-del { opacity: 1; }
 .tab-del:hover { color: #db2777; }
-
-.tab-add {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 14px; cursor: pointer; font-size: 20px; color: #a78bfa;
-  font-weight: 300; transition: color .15s; border-bottom: 3px solid transparent;
-}
+.tab-add { display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; cursor: pointer; font-size: 20px; color: #a78bfa; font-weight: 300; transition: color .15s; border-bottom: 3px solid transparent; }
 .tab-add:hover { color: var(--purple); }
 .tab-add.disabled { opacity: .35; cursor: default; }
 
-/* ── Accounts section ── */
+/* ── Accounts ── */
 .accounts-wrap { background: white; border-bottom: 1px solid #ede9fe; padding: 12px 20px; }
 .add-row { display: flex; gap: 8px; margin-bottom: 10px; }
-.add-row input {
-  flex: 1; border: 1.5px solid #ddd6fe; border-radius: 10px;
-  padding: 8px 13px; font-size: 14px; outline: none; background: #fdf9ff; color: #111;
-}
+.add-row input { flex: 1; border: 1.5px solid #ddd6fe; border-radius: 10px; padding: 8px 13px; font-size: 14px; outline: none; background: #fdf9ff; color: #111; }
 .add-row input:focus { border-color: var(--purple); background: white; }
 .add-row input::placeholder { color: #a78bfa; }
-.add-btn {
-  background: var(--grad); color: white; border: none; border-radius: 10px;
-  padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
-}
+.add-btn { background: var(--grad); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .add-btn:hover { opacity: .88; }
-
 .chips-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-items: center; }
-.chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 99px;
-  padding: 4px 9px 4px 7px; font-size: 12px; font-weight: 600; color: #4c1d95;
-}
+.chip { display: inline-flex; align-items: center; gap: 5px; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 99px; padding: 4px 9px 4px 7px; font-size: 12px; font-weight: 600; color: #4c1d95; }
 .chip img { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
-.chip-ph { width: 18px; height: 18px; border-radius: 50%; background: var(--grad); display:inline-flex; align-items:center; justify-content:center; font-size:9px; color:white; flex-shrink:0; }
+.chip-ph { width: 18px; height: 18px; border-radius: 50%; background: var(--grad); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: white; flex-shrink: 0; }
 .chip-del { background: none; border: none; cursor: pointer; font-size: 14px; color: #c4b5fd; padding: 0; line-height: 1; }
 .chip-del:hover { color: #db2777; }
 .chip-loading { opacity: .6; }
 .chip-error { border-color: #fecdd3; background: #fff1f2; color: #9f1239; }
 .no-accounts { font-size: 12px; color: #c4b5fd; }
 
+/* ── Trends page ── */
+.hashtag-section { background: white; border-bottom: 1px solid #ede9fe; padding: 12px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hashtag-label { font-size: 12px; font-weight: 700; color: #7c3aed; white-space: nowrap; }
+.hashtag-chips-row { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.hashtag-chip { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 99px; border: 1.5px solid #ddd6fe; background: #f5f3ff; color: #7c3aed; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; user-select: none; }
+.hashtag-chip:hover { border-color: var(--purple); }
+.hashtag-chip.on { background: var(--purple); color: white; border-color: var(--purple); }
+.load-btn { background: var(--grad); color: white; border: none; border-radius: 10px; padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.load-btn:hover { opacity: .88; }
+.trends-info { background: #fdf4ff; border-bottom: 1px solid #ede9fe; padding: 7px 20px; font-size: 11.5px; color: #7c3aed; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.trends-info code { font-family: monospace; background: #ede9fe; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; }
+.badge-hashtag { background: rgba(109,40,217,.8); color: white; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+
 /* ── Formula bar ── */
-.formula-bar {
-  padding: 7px 20px; background: #faf5ff; border-bottom: 1px solid #ede9fe;
-  font-size: 11.5px; color: #6d28d9; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
+.formula-bar { padding: 7px 20px; background: #faf5ff; border-bottom: 1px solid #ede9fe; font-size: 11.5px; color: #6d28d9; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .formula-bar code { font-family: monospace; background: #ede9fe; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; }
 
 /* ── Content ── */
@@ -102,53 +83,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state h3 { font-size: 17px; font-weight: 700; color: #4c1d95; margin-bottom: 7px; }
 .empty-state p { font-size: 13px; color: #7c3aed; opacity: .7; line-height: 1.7; }
-
 .loading-state { text-align: center; padding: 56px 20px; }
 .spinner { width: 40px; height: 40px; border: 3.5px solid #ede9fe; border-top-color: var(--purple); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-state p { color: #6d28d9; font-size: 14px; }
 .loading-progress { margin-top: 8px; font-size: 12px; color: #a78bfa; }
-
-/* ── Period bar ── */
-.period-bar {
-  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
-  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 11px;
-  padding: 9px 14px; margin-bottom: 16px; font-size: 13px; color: #166534;
-}
+.period-bar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 11px; padding: 9px 14px; margin-bottom: 16px; font-size: 13px; color: #166534; }
 .period-count { margin-left: auto; font-size: 12px; color: #16a34a; background: #dcfce7; padding: 2px 10px; border-radius: 99px; font-weight: 600; }
-
 .section-title { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 13px; }
-
 .errors-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 9px 13px; margin-bottom: 14px; font-size: 12px; color: #92400e; }
 .errors-box strong { display: block; margin-bottom: 3px; }
 
-/* ── Grid ── */
+/* ── Grid / Cards ── */
 .reels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 13px; }
-
-/* ── Card ── */
-.reel-card {
-  background: white; border-radius: 14px; overflow: hidden;
-  box-shadow: 0 2px 8px rgba(109,40,217,.07); border: 1px solid #ede9fe;
-  transition: transform .18s, box-shadow .18s; cursor: pointer;
-}
+.reel-card { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(109,40,217,.07); border: 1px solid #ede9fe; transition: transform .18s, box-shadow .18s; cursor: pointer; }
 .reel-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(109,40,217,.15); }
-.reel-thumb {
-  position: relative; height: 182px;
-  background: linear-gradient(135deg, #ede9fe, #fce7f3);
-  display: flex; align-items: center; justify-content: center; font-size: 42px; overflow: hidden;
-}
+.reel-thumb { position: relative; height: 182px; background: linear-gradient(135deg, #ede9fe, #fce7f3); display: flex; align-items: center; justify-content: center; font-size: 42px; overflow: hidden; }
 .reel-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.play-icon {
-  position: absolute; width: 42px; height: 42px; background: rgba(0,0,0,.42);
-  backdrop-filter: blur(4px); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 17px; color: white; pointer-events: none;
-}
+.play-icon { position: absolute; width: 42px; height: 42px; background: rgba(0,0,0,.42); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; color: white; pointer-events: none; }
 .badge-rank { position: absolute; top: 9px; left: 9px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 8px; }
 .badge-score { position: absolute; top: 9px; right: 9px; background: var(--grad); color: white; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 8px; }
 .badge-account { position: absolute; bottom: 9px; left: 9px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); color: white; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 7px; display: flex; align-items: center; gap: 5px; max-width: calc(100% - 18px); }
-.badge-account img { width: 15px; height: 15px; border-radius: 50%; object-fit: cover; flex-shrink:0; }
+.badge-account img { width: 15px; height: 15px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .badge-account span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
+.badge-htag { position: absolute; bottom: 9px; right: 9px; background: rgba(109,40,217,.75); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
 .reel-body { padding: 11px 13px; }
 .reel-desc { font-size: 12px; color: #374151; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 9px; min-height: 34px; }
 .score-bar { margin-bottom: 9px; }
@@ -202,13 +160,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   .reels-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
   .reel-thumb { height: 148px; }
   .reel-body { padding: 9px 10px; }
-  .header { padding: 14px 16px; }
+  .header { padding: 12px 14px; }
+  .header-title h1 { font-size: 16px; }
+  .nav-btn { padding: 6px 10px; font-size: 11px; }
 }
 </style>
 </head>
 <body>
 
-<!-- Modal -->
+<!-- Modal (shared) -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -236,32 +196,58 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
+<!-- Header -->
 <div class="header">
-  <h1>🎬 Reels Analyzer</h1>
-  <p>до 10 лент · до 30 аккаунтов каждая</p>
-</div>
-
-<!-- Tabs -->
-<div class="tabs-bar" id="tabsBar"></div>
-
-<!-- Accounts -->
-<div class="accounts-wrap">
-  <div class="add-row">
-    <input type="text" id="addInput"
-      placeholder="@username или https://www.instagram.com/username/"
-      onkeydown="if(event.key==='Enter') handleAdd()">
-    <button class="add-btn" onclick="handleAdd()">+ Добавить</button>
+  <div class="header-title">
+    <h1>🎬 Reels Analyzer</h1>
+    <p>саморазвитие · бизнес · предпринимательство</p>
   </div>
-  <div class="chips-row" id="chipsRow"></div>
+  <div class="header-nav">
+    <button class="nav-btn" data-page="trends" onclick="showPage('trends')">🌎 Все тренды</button>
+    <button class="nav-btn active" data-page="feeds" onclick="showPage('feeds')">📂 Мои ленты</button>
+  </div>
 </div>
 
-<div class="formula-bar">
-  📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
-  &nbsp;·&nbsp; топ-10 за последние 30 дней с каждого аккаунта
+<!-- ══ Page: Мои ленты ══ -->
+<div id="page-feeds">
+  <div class="tabs-bar" id="tabsBar"></div>
+  <div class="accounts-wrap">
+    <div class="add-row">
+      <input type="text" id="addInput"
+        placeholder="@username или ссылка на аккаунт"
+        onkeydown="if(event.key==='Enter') handleAdd()">
+      <button class="add-btn" onclick="handleAdd()">+ Добавить</button>
+    </div>
+    <div class="chips-row" id="chipsRow"></div>
+  </div>
+  <div class="formula-bar">
+    📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
+    &nbsp;·&nbsp; топ-10 за 30 дней с каждого аккаунта
+  </div>
+  <div class="content"><div id="main"></div></div>
 </div>
 
-<div class="content"><div id="main"></div></div>
-<div class="page-footer">Reels Analyzer · данные обновляются при открытии ленты</div>
+<!-- ══ Page: Все тренды ══ -->
+<div id="page-trends" style="display:none">
+  <div class="hashtag-section">
+    <div class="hashtag-label">🔍 Хэштеги:</div>
+    <div class="hashtag-chips-row" id="hashtagChipsRow"></div>
+    <button class="load-btn" onclick="loadTrends()">Загрузить тренды</button>
+  </div>
+  <div class="trends-info">
+    📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
+    &nbsp;·&nbsp; фильтр: последние 7 дней &nbsp;·&nbsp; топ из Instagram по выбранным хэштегам
+  </div>
+  <div class="content"><div id="trends-main">
+    <div class="empty-state">
+      <div class="empty-icon">🔥</div>
+      <h3>Тренды ещё не загружены</h3>
+      <p>Выбери хэштеги выше и нажми «Загрузить тренды».<br>Показываем рилсы с наибольшим охватом за последнюю неделю.</p>
+    </div>
+  </div></div>
+</div>
+
+<div class="page-footer">Reels Analyzer · данные обновляются при каждой загрузке</div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────
@@ -284,30 +270,41 @@ function extractUsername(raw) {
   const m = raw.match(/instagram\.com\/([^\/\?\s&#]+)/);
   return m ? m[1] : raw;
 }
-function calcScore(views, likes, comments, ts) {
-  const days = (Date.now()/1000 - ts) / 86400;
-  return (views + likes*15 + comments*50) / Math.sqrt(days + 1);
+function calcScore(r) {
+  // r.timestamp is in milliseconds
+  const days = (Date.now() - r.timestamp) / 86400000;
+  return (r.views + r.likes * 15 + r.comments * 50) / Math.sqrt(days + 1);
 }
-function fmtDate(ts) {
-  return new Date(ts*1000).toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
+function fmtDate(tsMs) {
+  return new Date(tsMs).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
+function daysAgo(tsMs) {
+  return Math.round((Date.now() - tsMs) / 86400000);
 }
 
-// ── Storage ───────────────────────────────────────────────────────────────
+// ── Page switching ────────────────────────────────────────────────────────
+let currentPage = 'feeds';
+function showPage(page) {
+  currentPage = page;
+  document.getElementById('page-feeds').style.display   = page === 'feeds'  ? '' : 'none';
+  document.getElementById('page-trends').style.display  = page === 'trends' ? '' : 'none';
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+}
+
+// ── Storage (feeds) ───────────────────────────────────────────────────────
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (s && s.feeds && s.feeds.length) return s;
   } catch {}
-  const defaultFeed = { id: uid(), name: 'Лента 1', accounts: [] };
-  return { feeds: [defaultFeed], activeFeedId: defaultFeed.id };
+  const f = { id: uid(), name: 'Лента 1', accounts: [] };
+  return { feeds: [f], activeFeedId: f.id };
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
 let state = loadState();
 function activeFeed() { return state.feeds.find(f => f.id === state.activeFeedId) || state.feeds[0]; }
-
-// ── Feed cache (in-memory, per session) ───────────────────────────────────
-const feedCache = {}; // feedId → { reels, timestamp }
+const feedCache = {};
 
 // ── Feeds CRUD ────────────────────────────────────────────────────────────
 function addFeed() {
@@ -315,36 +312,22 @@ function addFeed() {
   const f = { id: uid(), name: `Лента ${state.feeds.length + 1}`, accounts: [] };
   state.feeds.push(f);
   state.activeFeedId = f.id;
-  saveState();
-  renderTabs();
-  renderChips();
-  renderMain();
+  saveState(); renderTabs(); renderChips(); renderMain();
 }
-
 function deleteFeed(id) {
   if (state.feeds.length <= 1) { alert('Нельзя удалить последнюю ленту'); return; }
   if (!confirm(`Удалить ленту "${state.feeds.find(f=>f.id===id)?.name}"?`)) return;
   state.feeds = state.feeds.filter(f => f.id !== id);
   if (state.activeFeedId === id) state.activeFeedId = state.feeds[0].id;
   delete feedCache[id];
-  saveState();
-  renderTabs();
-  renderChips();
-  renderMain();
+  saveState(); renderTabs(); renderChips(); renderMain();
 }
-
 function switchFeed(id) {
   if (state.activeFeedId === id) return;
   state.activeFeedId = id;
-  saveState();
-  renderTabs();
-  renderChips();
-  renderMain();
-  // Load if not cached
-  if (!feedCache[id]) fetchAndRender();
-  else renderFromCache(id);
+  saveState(); renderTabs(); renderChips(); renderMain();
+  if (!feedCache[id]) fetchAndRender(); else renderFromCache(id);
 }
-
 function renameFeed(id, name) {
   const f = state.feeds.find(f => f.id === id);
   if (f) { f.name = name.trim() || f.name; saveState(); }
@@ -353,35 +336,29 @@ function renameFeed(id, name) {
 // ── Tabs UI ───────────────────────────────────────────────────────────────
 function renderTabs() {
   const bar = document.getElementById('tabsBar');
-  const active = state.activeFeedId;
-
   bar.innerHTML = state.feeds.map(f => `
-    <div class="tab ${f.id === active ? 'active' : ''}" onclick="switchFeed('${f.id}')">
+    <div class="tab ${f.id === state.activeFeedId ? 'active' : ''}" onclick="switchFeed('${f.id}')">
       <input class="tab-name"
         value="${f.name.replace(/"/g,'&quot;')}"
-        title="Двойной клик — переименовать"
-        readonly
+        title="Двойной клик — переименовать" readonly
         ondblclick="this.removeAttribute('readonly'); this.select()"
         onblur="this.setAttribute('readonly',''); renameFeed('${f.id}', this.value); renderTabs()"
         onkeydown="if(event.key==='Enter'){this.blur()} event.stopPropagation()"
-        onclick="event.stopPropagation()"
-      >
+        onclick="event.stopPropagation()">
       <button class="tab-del" title="Удалить ленту" onclick="event.stopPropagation(); deleteFeed('${f.id}')">×</button>
     </div>
   `).join('') + `
     <div class="tab-add ${state.feeds.length >= MAX_FEEDS ? 'disabled' : ''}"
          title="${state.feeds.length >= MAX_FEEDS ? 'Максимум 10 лент' : 'Добавить ленту'}"
-         onclick="${state.feeds.length < MAX_FEEDS ? 'addFeed()' : ''}">+</div>
-  `;
+         onclick="${state.feeds.length < MAX_FEEDS ? 'addFeed()' : ''}">+</div>`;
 }
 
-// ── Account chips ─────────────────────────────────────────────────────────
+// ── Chips ─────────────────────────────────────────────────────────────────
 function renderChips() {
   const feed = activeFeed();
   const row  = document.getElementById('chipsRow');
   if (!feed.accounts.length) {
-    row.innerHTML = '<span class="no-accounts">Добавь аккаунты — они сохранятся в этой ленте</span>';
-    return;
+    row.innerHTML = '<span class="no-accounts">Добавь аккаунты — они сохранятся в этой ленте</span>'; return;
   }
   row.innerHTML = feed.accounts.map(u => `
     <div class="chip" id="chip-${feed.id}-${u}">
@@ -391,13 +368,12 @@ function renderChips() {
     </div>
   `).join('') + `<span style="font-size:11px;color:#c4b5fd">${feed.accounts.length}/${MAX_ACCS}</span>`;
 }
-
-function updateChipAvatar(feedId, username, url) {
-  const el = document.getElementById(`chip-av-${feedId}-${username}`);
-  if (el && url) el.outerHTML = `<img id="chip-av-${feedId}-${username}" src="${url}" style="width:18px;height:18px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
+function updateChipAvatar(feedId, u, url) {
+  const el = document.getElementById(`chip-av-${feedId}-${u}`);
+  if (el && url) el.outerHTML = `<img id="chip-av-${feedId}-${u}" src="${url}" style="width:18px;height:18px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
 }
-function setChipState(feedId, username, s) {
-  const c = document.getElementById(`chip-${feedId}-${username}`);
+function setChipState(feedId, u, s) {
+  const c = document.getElementById(`chip-${feedId}-${u}`);
   if (c) { c.classList.toggle('chip-loading', s==='loading'); c.classList.toggle('chip-error', s==='error'); }
 }
 
@@ -414,31 +390,26 @@ function handleAdd() {
   delete feedCache[feed.id];
   saveState();
   document.getElementById('addInput').value = '';
-  renderChips();
-  fetchAndRender();
+  renderChips(); fetchAndRender();
 }
-
 function removeAccount(username) {
   const feed = activeFeed();
   feed.accounts = feed.accounts.filter(a => a.toLowerCase() !== username.toLowerCase());
   delete feedCache[feed.id];
-  saveState();
-  renderChips();
-  fetchAndRender();
+  saveState(); renderChips(); fetchAndRender();
 }
 
-// ── Fetch ─────────────────────────────────────────────────────────────────
+// ── Fetch user reels ──────────────────────────────────────────────────────
 async function fetchAccount(username) {
   const resp = await fetch(`${WORKER_URL}/?username=${encodeURIComponent(username)}`, { signal: AbortSignal.timeout(20000) });
   const data = await resp.json();
   if (!resp.ok) throw new Error(data?.error || `Ошибка ${resp.status}`);
   if (!data?.user) throw new Error('Аккаунт не найден или закрытый');
-  const monthAgo = Date.now()/1000 - 30*24*3600;
+  const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
   const top10 = (data.reels || [])
     .filter(r => r.timestamp > monthAgo)
-    .map(r => ({ ...r, score: calcScore(r.views, r.likes, r.comments, r.timestamp) }))
-    .sort((a,b) => b.score - a.score).slice(0, 10)
-    .map(r => ({ ...r, accountUsername: data.user.username, accountAvatar: data.user.avatar }));
+    .map(r => ({ ...r, score: calcScore(r), accountUsername: data.user.username, accountAvatar: data.user.avatar }))
+    .sort((a,b) => b.score - a.score).slice(0, 10);
   return { profile: data.user, reels: top10 };
 }
 
@@ -447,12 +418,9 @@ function setMain(html) { document.getElementById('main').innerHTML = html; }
 async function fetchAndRender() {
   const feed = activeFeed();
   if (!feed.accounts.length) { renderMain(); return; }
-
-  setMain(`<div class="loading-state"><div class="spinner"></div><p>Загружаю «${feed.name}»…</p><div class="loading-progress" id="loadProgress">0 / ${feed.accounts.length} аккаунтов</div></div>`);
+  setMain(`<div class="loading-state"><div class="spinner"></div><p>Загружаю «${feed.name}»…</p><div class="loading-progress" id="loadProgress">0 / ${feed.accounts.length}</div></div>`);
   feed.accounts.forEach(u => setChipState(feed.id, u, 'loading'));
-
-  let done = 0;
-  const errors = [];
+  let done = 0; const errors = [];
   const results = await Promise.allSettled(feed.accounts.map(async u => {
     try {
       const r = await fetchAccount(u);
@@ -460,7 +428,7 @@ async function fetchAndRender() {
       setChipState(feed.id, u, 'ok');
       done++;
       const el = document.getElementById('loadProgress');
-      if (el) el.textContent = `${done} / ${feed.accounts.length} аккаунтов`;
+      if (el) el.textContent = `${done} / ${feed.accounts.length}`;
       return r;
     } catch(e) {
       setChipState(feed.id, u, 'error');
@@ -468,11 +436,9 @@ async function fetchAndRender() {
       done++; throw e;
     }
   }));
-
   const allReels = [];
   results.forEach(r => { if (r.status === 'fulfilled') allReels.push(...r.value.reels); });
   allReels.sort((a,b) => b.score - a.score);
-
   feedCache[feed.id] = { reels: allReels, errors, ts: Date.now() };
   renderReels(feed, allReels, errors);
 }
@@ -483,72 +449,65 @@ function renderFromCache(feedId) {
   if (c && feed) renderReels(feed, c.reels, c.errors);
 }
 
-// ── Render reels ──────────────────────────────────────────────────────────
-let _reelsCache = [];
-
 function renderMain() {
   const feed = activeFeed();
   if (!feed.accounts.length) {
-    setMain(`<div class="empty-state"><div class="empty-icon">📱</div><h3>Лента пустая</h3><p>Добавь аккаунты выше, чтобы увидеть рилсы</p></div>`);
-    return;
+    setMain(`<div class="empty-state"><div class="empty-icon">📱</div><h3>Лента пустая</h3><p>Добавь аккаунты выше, чтобы увидеть рилсы</p></div>`); return;
   }
-  if (feedCache[feed.id]) renderFromCache(feed.id);
-  else fetchAndRender();
+  if (feedCache[feed.id]) renderFromCache(feed.id); else fetchAndRender();
 }
 
+// ── Build card HTML ───────────────────────────────────────────────────────
+function buildCard(reel, i, maxScore, cacheRef, showHashtag) {
+  const rank  = i + 1;
+  const rl    = rank===1?'🥇 #1':rank===2?'🥈 #2':rank===3?'🥉 #3':`#${rank}`;
+  const pct   = Math.round((reel.score / maxScore) * 100);
+  const d     = daysAgo(reel.timestamp);
+  const desc  = (reel.caption || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') || '<em style="color:#ccc">без описания</em>';
+  const av    = reel.accountAvatar ? `<img src="${reel.accountAvatar}" onerror="this.style.display='none'">` : '';
+  const htag  = showHashtag && reel.hashtag ? `<div class="badge-htag">#${reel.hashtag}</div>` : '';
+  return `
+    <div class="reel-card" onclick="window.open('${reel.url}','_blank')">
+      <div class="reel-thumb">
+        ${reel.thumbnail?`<img src="${reel.thumbnail}" onerror="this.style.display='none'" loading="lazy"><div class="play-icon">▶</div>`:'🎬'}
+        <div class="badge-rank">${rl}</div>
+        <div class="badge-score">⚡ ${fmt(Math.round(reel.score))}</div>
+        <div class="badge-account">${av}<span>@${reel.accountUsername||reel.username||'—'}</span></div>
+        ${htag}
+      </div>
+      <div class="reel-body">
+        <div class="reel-desc">${desc}</div>
+        <div class="score-bar"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div></div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-v">👁 ${fmt(reel.views)}</div><div class="stat-l">просмотры</div></div>
+          <div class="stat"><div class="stat-v">❤️ ${fmt(reel.likes)}</div><div class="stat-l">лайки</div></div>
+          <div class="stat"><div class="stat-v">💬 ${fmt(reel.comments)}</div><div class="stat-l">коммент.</div></div>
+        </div>
+        <div class="reel-footer">
+          <span class="reel-date">${fmtDate(reel.timestamp)} · ${d}д</span>
+          <div class="reel-btns">
+            <button class="reel-text-btn" onclick="event.stopPropagation();showModal(${i},'${cacheRef}')">📝 Текст</button>
+            <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">→</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Render feeds reels ────────────────────────────────────────────────────
 function renderReels(feed, allReels, errors) {
-  _reelsCache = allReels;
-
+  _feedsReels = allReels;
   if (!allReels.length) {
-    setMain(`<div class="empty-state"><div class="empty-icon">😕</div><h3>Нет рилсов за последний месяц</h3><p>Ни один аккаунт не публиковал рилсы за 30 дней</p></div>`);
-    return;
+    setMain(`<div class="empty-state"><div class="empty-icon">😕</div><h3>Нет рилсов за последний месяц</h3><p>Ни один аккаунт не публиковал рилсы за 30 дней</p></div>`); return;
   }
-
-  const maxScore = allReels[0].score;
-  const dateFrom = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const ok       = feed.accounts.length - errors.length;
-
+  const maxScore  = allReels[0].score;
+  const dateFrom  = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const dateTo    = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const ok        = feed.accounts.length - errors.length;
   let errHtml = '';
   if (errors.length) errHtml = `<div class="errors-box"><strong>⚠️ Не загрузились (${errors.length}):</strong>${errors.map(e=>`@${e.username}: ${e.error}`).join(' · ')}</div>`;
-
-  let cards = '';
-  allReels.forEach((reel, i) => {
-    const rank = i+1;
-    const rl   = rank===1?'🥇 #1':rank===2?'🥈 #2':rank===3?'🥉 #3':`#${rank}`;
-    const pct  = Math.round((reel.score/maxScore)*100);
-    const d    = Math.round((Date.now()/1000 - reel.timestamp)/86400);
-    const desc = reel.description ? reel.description.replace(/</g,'&lt;').replace(/>/g,'&gt;') : '<em style="color:#ccc">без описания</em>';
-    const av   = reel.accountAvatar ? `<img src="${reel.accountAvatar}" onerror="this.style.display='none'">` : '';
-    cards += `
-      <div class="reel-card" onclick="window.open('${reel.url}','_blank')">
-        <div class="reel-thumb">
-          ${reel.thumbnail?`<img src="${reel.thumbnail}" onerror="this.style.display='none'" loading="lazy"><div class="play-icon">▶</div>`:'🎬'}
-          <div class="badge-rank">${rl}</div>
-          <div class="badge-score">⚡ ${fmt(Math.round(reel.score))}</div>
-          <div class="badge-account">${av}<span>@${reel.accountUsername}</span></div>
-        </div>
-        <div class="reel-body">
-          <div class="reel-desc">${desc}</div>
-          <div class="score-bar"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div></div>
-          <div class="stats-row">
-            <div class="stat"><div class="stat-v">👁 ${fmt(reel.views)}</div><div class="stat-l">просмотры</div></div>
-            <div class="stat"><div class="stat-v">❤️ ${fmt(reel.likes)}</div><div class="stat-l">лайки</div></div>
-            <div class="stat"><div class="stat-v">💬 ${fmt(reel.comments)}</div><div class="stat-l">коммент.</div></div>
-          </div>
-          <div class="reel-footer">
-            <span class="reel-date">${fmtDate(reel.timestamp)} · ${d}д</span>
-            <div class="reel-btns">
-              <button class="reel-text-btn" onclick="event.stopPropagation();showText(${i})">📝 Текст</button>
-              <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">→</a>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  });
-
-  setMain(`
-    ${errHtml}
+  const cards = allReels.map((r, i) => buildCard(r, i, maxScore, 'feeds', false)).join('');
+  setMain(`${errHtml}
     <div class="period-bar">
       <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
       <span>${ok} из ${feed.accounts.length} аккаунтов</span>
@@ -558,23 +517,104 @@ function renderReels(feed, allReels, errors) {
     <div class="reels-grid">${cards}</div>`);
 }
 
-// ── Modal ─────────────────────────────────────────────────────────────────
-let _currentIdx = -1;
-const _txCache  = {};
+// ── Hashtag trends ────────────────────────────────────────────────────────
+const HASHTAGS = [
+  { tag: 'предпринимательство', on: true },
+  { tag: 'бизнес',              on: true },
+  { tag: 'саморазвитие',        on: true },
+  { tag: 'мотивация',           on: false },
+  { tag: 'маркетинг',           on: false },
+  { tag: 'успех',               on: false },
+  { tag: 'entrepreneur',        on: true },
+  { tag: 'business',            on: false },
+  { tag: 'selfdevelopment',     on: false },
+];
 
-function showText(idx) {
-  const reel = _reelsCache[idx];
-  if (!reel) return;
+function renderHashtagChips() {
+  document.getElementById('hashtagChipsRow').innerHTML = HASHTAGS.map((h, i) => `
+    <div class="hashtag-chip ${h.on ? 'on' : ''}" onclick="toggleHashtag(${i})">#${h.tag}</div>
+  `).join('');
+}
+function toggleHashtag(i) {
+  HASHTAGS[i].on = !HASHTAGS[i].on;
+  renderHashtagChips();
+}
+
+async function loadTrends() {
+  const active = HASHTAGS.filter(h => h.on);
+  if (!active.length) { alert('Выбери хотя бы один хэштег'); return; }
+  const main = document.getElementById('trends-main');
+  main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Загружаю тренды…</p><div class="loading-progress" id="trendsProgress">Хэштег 0 из ${active.length}</div></div>`;
+  const allReels = [];
+  for (let i = 0; i < active.length; i++) {
+    const h = active[i];
+    document.getElementById('trendsProgress').textContent = `#${h.tag} (${i+1} из ${active.length})…`;
+    try {
+      const resp = await fetch(`${WORKER_URL}/?action=hashtag&tag=${encodeURIComponent(h.tag)}`);
+      const data = await resp.json();
+      if (data.reels) {
+        allReels.push(...data.reels.map(r => ({ ...r, accountUsername: r.username, accountAvatar: r.avatar })));
+      }
+    } catch(e) { console.warn(`#${h.tag}:`, e); }
+  }
+  // Filter last 7 days; fallback to 30 days if too few results
+  const weekAgo  = Date.now() - 7  * 24 * 3600 * 1000;
+  const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
+  let filtered = allReels.filter(r => r.timestamp > weekAgo);
+  let period   = '7 дней';
+  if (filtered.length < 5) {
+    filtered = allReels.filter(r => r.timestamp > monthAgo);
+    period   = '30 дней';
+  }
+  // Deduplicate by shortcode
+  const seen   = new Set();
+  const unique = filtered.filter(r => { if (!r.shortcode || seen.has(r.shortcode)) return false; seen.add(r.shortcode); return true; });
+  // Score
+  const scored = unique.map(r => ({ ...r, score: calcScore(r) })).sort((a,b) => b.score - a.score);
+  _trendsReels = scored;
+  renderTrendingReels(scored, period, active.length);
+}
+
+function renderTrendingReels(reels, period, hashtagCount) {
+  const main = document.getElementById('trends-main');
+  if (!reels.length) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><h3>Рилсы не найдены</h3><p>Instagram не вернул рилсы по выбранным хэштегам.<br>Попробуй другие хэштеги или повтори позже.</p></div>`; return;
+  }
+  const maxScore = reels[0].score;
+  const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const dateFrom = new Date(Date.now() - (period==='7 дней'?7:30)*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const cards    = reels.map((r, i) => buildCard(r, i, maxScore, 'trends', true)).join('');
+  main.innerHTML = `
+    <div class="period-bar">
+      <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
+      <span>${hashtagCount} хэштег${hashtagCount>4?'ов':hashtagCount>1?'а':''}</span>
+      <div class="period-count">${reels.length} рилсов</div>
+    </div>
+    <div class="section-title">Трендовые рилсы за ${period}</div>
+    <div class="reels-grid">${cards}</div>`;
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+let _feedsReels  = [];
+let _trendsReels = [];
+let _currentIdx  = -1;
+let _currentSrc  = 'feeds';
+const _txCache   = {};
+
+function showModal(idx, src) {
   _currentIdx = idx;
+  _currentSrc = src;
+  const reel = src === 'trends' ? _trendsReels[idx] : _feedsReels[idx];
+  if (!reel) return;
 
   const th = document.getElementById('modalThumb');
   th.innerHTML = reel.thumbnail ? `<img src="${reel.thumbnail}" onerror="this.parentElement.innerHTML='🎬'">` : '🎬';
-  document.getElementById('modalAccount').textContent = `@${reel.accountUsername}`;
+  document.getElementById('modalAccount').textContent = `@${reel.accountUsername || reel.username || '—'}`;
   document.getElementById('modalDate').textContent    = `${fmtDate(reel.timestamp)} · 👁 ${fmt(reel.views)}  ❤️ ${fmt(reel.likes)}  💬 ${fmt(reel.comments)}`;
   document.getElementById('modalLink').href           = reel.url;
 
   const cap = document.getElementById('modalCaption');
-  if (reel.description?.trim()) { cap.textContent = reel.description; cap.classList.remove('empty'); }
+  if ((reel.caption||'').trim()) { cap.textContent = reel.caption; cap.classList.remove('empty'); }
   else { cap.textContent = 'Подпись отсутствует'; cap.classList.add('empty'); }
 
   document.getElementById('copyTranscriptionBtn').style.display = 'none';
@@ -594,7 +634,7 @@ function showText(idx) {
 }
 
 async function startTranscription() {
-  const reel = _reelsCache[_currentIdx];
+  const reel = _currentSrc === 'trends' ? _trendsReels[_currentIdx] : _feedsReels[_currentIdx];
   if (!reel?.video_url) return;
   const area = document.getElementById('transcriptionArea');
   area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
@@ -602,8 +642,7 @@ async function startTranscription() {
     const resp = await fetch(`${WORKER_URL}/?action=transcribe&video_url=${encodeURIComponent(reel.video_url)}`, { signal: AbortSignal.timeout(90000) });
     const data = await resp.json();
     if (!resp.ok || data.error) {
-      area.innerHTML = `<div class="transcription-error">😕 ${data.error||'Ошибка'}</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`;
-      return;
+      area.innerHTML = `<div class="transcription-error">😕 ${data.error||'Ошибка'}</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`; return;
     }
     _txCache[reel.shortcode] = data.transcription;
     showTxResult(data.transcription);
@@ -622,7 +661,6 @@ function showTxResult(text) {
     area.innerHTML = `<div class="transcription-error">🔇 Речь не обнаружена</div>`;
   }
 }
-
 function hideModal() {
   const ov = document.getElementById('modalOverlay');
   ov.classList.remove('visible');
@@ -645,6 +683,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') hideModal(); }
 renderTabs();
 renderChips();
 renderMain();
+renderHashtagChips();
 </script>
 </body>
 </html>
