@@ -14,222 +14,195 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f3ff; color: #111; min-height: 100vh; }
 
 /* ── Header ── */
-.header { background: var(--grad); padding: 22px 28px 18px; color: white; }
-.header h1 { font-size: 22px; font-weight: 900; letter-spacing: -.3px; }
-.header p  { font-size: 12px; opacity: .82; margin-top: 3px; }
+.header { background: var(--grad); padding: 18px 28px 14px; color: white; display: flex; align-items: center; gap: 12px; }
+.header h1 { font-size: 20px; font-weight: 900; letter-spacing: -.3px; flex: 1; }
+.header p  { font-size: 12px; opacity: .75; }
+
+/* ── Tabs bar ── */
+.tabs-bar {
+  background: white; border-bottom: 2px solid #ede9fe;
+  padding: 0 20px; display: flex; align-items: stretch;
+  overflow-x: auto; gap: 2px; min-height: 46px;
+}
+.tabs-bar::-webkit-scrollbar { height: 0; }
+
+.tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 14px; border-bottom: 3px solid transparent;
+  cursor: pointer; white-space: nowrap; font-size: 13px;
+  font-weight: 600; color: #9ca3af; transition: color .15s;
+  position: relative; user-select: none;
+}
+.tab:hover { color: var(--purple); }
+.tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+.tab-name { outline: none; background: transparent; border: none; font: inherit; color: inherit; cursor: pointer; max-width: 120px; }
+.tab-name:focus {
+  background: #f5f3ff; border-radius: 5px; padding: 1px 5px;
+  color: #4c1d95; cursor: text;
+}
+
+.tab-del {
+  background: none; border: none; cursor: pointer; font-size: 14px;
+  color: #d1d5db; padding: 0; line-height: 1; transition: color .15s;
+  opacity: 0;
+}
+.tab:hover .tab-del { opacity: 1; }
+.tab-del:hover { color: #db2777; }
+
+.tab-add {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 14px; cursor: pointer; font-size: 20px; color: #a78bfa;
+  font-weight: 300; transition: color .15s; border-bottom: 3px solid transparent;
+}
+.tab-add:hover { color: var(--purple); }
+.tab-add.disabled { opacity: .35; cursor: default; }
 
 /* ── Accounts section ── */
-.accounts-wrap { background: white; border-bottom: 1px solid #ede9fe; padding: 16px 28px; }
-.add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.accounts-wrap { background: white; border-bottom: 1px solid #ede9fe; padding: 12px 20px; }
+.add-row { display: flex; gap: 8px; margin-bottom: 10px; }
 .add-row input {
   flex: 1; border: 1.5px solid #ddd6fe; border-radius: 10px;
-  padding: 9px 14px; font-size: 14px; outline: none; background: #fdf9ff; color: #111;
-  transition: border-color .2s;
+  padding: 8px 13px; font-size: 14px; outline: none; background: #fdf9ff; color: #111;
 }
 .add-row input:focus { border-color: var(--purple); background: white; }
 .add-row input::placeholder { color: #a78bfa; }
 .add-btn {
   background: var(--grad); color: white; border: none; border-radius: 10px;
-  padding: 9px 18px; font-size: 14px; font-weight: 700; cursor: pointer;
-  white-space: nowrap; transition: opacity .15s;
+  padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
 }
 .add-btn:hover { opacity: .88; }
 
-.chips-row { display: flex; flex-wrap: wrap; gap: 7px; min-height: 32px; align-items: center; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-items: center; }
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
   background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 99px;
-  padding: 5px 10px 5px 8px; font-size: 13px; font-weight: 600; color: #4c1d95;
-  transition: background .15s;
+  padding: 4px 9px 4px 7px; font-size: 12px; font-weight: 600; color: #4c1d95;
 }
-.chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; background: #ddd6fe; }
-.chip-avatar-placeholder { width: 20px; height: 20px; border-radius: 50%; background: var(--grad); display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:white; flex-shrink:0; }
-.chip-remove {
-  background: none; border: none; cursor: pointer; font-size: 15px;
-  color: #a78bfa; line-height: 1; padding: 0 0 0 2px; transition: color .15s;
-}
-.chip-remove:hover { color: #db2777; }
+.chip img { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
+.chip-ph { width: 18px; height: 18px; border-radius: 50%; background: var(--grad); display:inline-flex; align-items:center; justify-content:center; font-size:9px; color:white; flex-shrink:0; }
+.chip-del { background: none; border: none; cursor: pointer; font-size: 14px; color: #c4b5fd; padding: 0; line-height: 1; }
+.chip-del:hover { color: #db2777; }
 .chip-loading { opacity: .6; }
 .chip-error { border-color: #fecdd3; background: #fff1f2; color: #9f1239; }
+.no-accounts { font-size: 12px; color: #c4b5fd; }
 
-.formula-pill-bar {
-  padding: 8px 28px; background: #faf5ff; border-bottom: 1px solid #ede9fe;
-  font-size: 12px; color: #6d28d9; display: flex; align-items: center; gap: 8px;
+/* ── Formula bar ── */
+.formula-bar {
+  padding: 7px 20px; background: #faf5ff; border-bottom: 1px solid #ede9fe;
+  font-size: 11.5px; color: #6d28d9; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
-.formula-pill-bar code { font-family: monospace; background: #ede9fe; padding: 1px 6px; border-radius: 5px; font-size: 11px; }
+.formula-bar code { font-family: monospace; background: #ede9fe; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; }
 
 /* ── Content ── */
-.content { max-width: 1020px; margin: 0 auto; padding: 24px 20px 48px; }
+.content { max-width: 1020px; margin: 0 auto; padding: 20px 20px 48px; }
 
 /* ── States ── */
-.empty-state { text-align: center; padding: 64px 20px; }
-.empty-icon { font-size: 52px; margin-bottom: 14px; }
-.empty-state h3 { font-size: 18px; font-weight: 700; color: #4c1d95; margin-bottom: 8px; }
+.empty-state { text-align: center; padding: 56px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 17px; font-weight: 700; color: #4c1d95; margin-bottom: 7px; }
 .empty-state p { font-size: 13px; color: #7c3aed; opacity: .7; line-height: 1.7; }
 
-.loading-state { text-align: center; padding: 64px 20px; }
-.spinner { width: 44px; height: 44px; border: 4px solid #ede9fe; border-top-color: var(--purple); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+.loading-state { text-align: center; padding: 56px 20px; }
+.spinner { width: 40px; height: 40px; border: 3.5px solid #ede9fe; border-top-color: var(--purple); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-state p { color: #6d28d9; font-size: 15px; }
-.loading-progress { margin-top: 10px; font-size: 13px; color: #a78bfa; }
+.loading-state p { color: #6d28d9; font-size: 14px; }
+.loading-progress { margin-top: 8px; font-size: 12px; color: #a78bfa; }
 
 /* ── Period bar ── */
 .period-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
-  padding: 10px 16px; margin-bottom: 18px; font-size: 13px; color: #166534;
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 11px;
+  padding: 9px 14px; margin-bottom: 16px; font-size: 13px; color: #166534;
 }
 .period-count { margin-left: auto; font-size: 12px; color: #16a34a; background: #dcfce7; padding: 2px 10px; border-radius: 99px; font-weight: 600; }
 
-/* ── Section title ── */
-.section-title { font-size: 12px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.section-title { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 13px; }
 
-/* ── Errors list ── */
-.errors-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #92400e; }
-.errors-box strong { display: block; margin-bottom: 4px; }
+.errors-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 9px 13px; margin-bottom: 14px; font-size: 12px; color: #92400e; }
+.errors-box strong { display: block; margin-bottom: 3px; }
 
 /* ── Grid ── */
-.reels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 14px; }
+.reels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 13px; }
 
 /* ── Card ── */
 .reel-card {
   background: white; border-radius: 14px; overflow: hidden;
-  box-shadow: 0 2px 8px rgba(109,40,217,.08); border: 1px solid #ede9fe;
+  box-shadow: 0 2px 8px rgba(109,40,217,.07); border: 1px solid #ede9fe;
   transition: transform .18s, box-shadow .18s; cursor: pointer;
 }
-.reel-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(109,40,217,.16); }
-
+.reel-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(109,40,217,.15); }
 .reel-thumb {
-  position: relative; height: 185px;
+  position: relative; height: 182px;
   background: linear-gradient(135deg, #ede9fe, #fce7f3);
-  display: flex; align-items: center; justify-content: center; font-size: 44px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 42px; overflow: hidden;
 }
 .reel-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .play-icon {
-  position: absolute; width: 44px; height: 44px; background: rgba(0,0,0,.45);
+  position: absolute; width: 42px; height: 42px; background: rgba(0,0,0,.42);
   backdrop-filter: blur(4px); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; color: white; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; font-size: 17px; color: white; pointer-events: none;
 }
-.badge-rank {
-  position: absolute; top: 9px; left: 9px;
-  background: rgba(0,0,0,.6); backdrop-filter: blur(6px);
-  color: white; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 8px;
-}
-.badge-score {
-  position: absolute; top: 9px; right: 9px;
-  background: var(--grad); color: white; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 8px;
-}
-.badge-account {
-  position: absolute; bottom: 9px; left: 9px;
-  background: rgba(0,0,0,.6); backdrop-filter: blur(6px);
-  color: white; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 7px;
-  display: flex; align-items: center; gap: 5px; max-width: calc(100% - 18px);
-}
-.badge-account img { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; flex-shrink:0; }
+.badge-rank { position: absolute; top: 9px; left: 9px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 8px; }
+.badge-score { position: absolute; top: 9px; right: 9px; background: var(--grad); color: white; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 8px; }
+.badge-account { position: absolute; bottom: 9px; left: 9px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); color: white; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 7px; display: flex; align-items: center; gap: 5px; max-width: calc(100% - 18px); }
+.badge-account img { width: 15px; height: 15px; border-radius: 50%; object-fit: cover; flex-shrink:0; }
 .badge-account span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.reel-body { padding: 12px 14px; }
-.reel-desc {
-  font-size: 12.5px; color: #374151; line-height: 1.4;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; margin-bottom: 10px; min-height: 36px;
-}
-
-.score-bar { margin-bottom: 10px; }
+.reel-body { padding: 11px 13px; }
+.reel-desc { font-size: 12px; color: #374151; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 9px; min-height: 34px; }
+.score-bar { margin-bottom: 9px; }
 .score-bar-bg { background: #f5f3ff; border-radius: 99px; height: 4px; overflow: hidden; }
 .score-bar-fill { height: 100%; background: var(--grad); border-radius: 99px; transition: width .5s ease; }
-
-.stats-row { display: flex; gap: 6px; margin-bottom: 10px; }
-.stat { flex: 1; text-align: center; background: #faf5ff; border-radius: 8px; padding: 6px 4px; border: 1px solid #ede9fe; }
-.stat-v { font-size: 13px; font-weight: 800; color: #4c1d95; }
-.stat-l { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; margin-top: 1px; }
-
-.reel-footer { display: flex; align-items: center; justify-content: space-between; }
-.reel-date { font-size: 11px; color: #c4b5fd; }
-.reel-open {
-  font-size: 12px; font-weight: 700; color: var(--purple); text-decoration: none;
-  padding: 4px 10px; background: #f5f3ff; border-radius: 7px; transition: background .15s;
-}
+.stats-row { display: flex; gap: 5px; margin-bottom: 9px; }
+.stat { flex: 1; text-align: center; background: #faf5ff; border-radius: 7px; padding: 5px 3px; border: 1px solid #ede9fe; }
+.stat-v { font-size: 12px; font-weight: 800; color: #4c1d95; }
+.stat-l { font-size: 8.5px; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; margin-top: 1px; }
+.reel-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.reel-date { font-size: 10.5px; color: #c4b5fd; flex-shrink: 0; }
+.reel-btns { display: flex; gap: 5px; }
+.reel-text-btn { font-size: 11px; font-weight: 700; color: #6d28d9; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+.reel-text-btn:hover { background: #ede9fe; }
+.reel-open { font-size: 11px; font-weight: 700; color: var(--purple); text-decoration: none; padding: 3px 8px; background: #f5f3ff; border-radius: 6px; border: 1px solid #ddd6fe; }
 .reel-open:hover { background: #ede9fe; }
 
-/* ── Text button ── */
-.reel-text-btn {
-  font-size: 12px; font-weight: 700; color: #6d28d9; background: #f5f3ff;
-  border: 1px solid #ddd6fe; border-radius: 7px; padding: 4px 9px;
-  cursor: pointer; transition: background .15s; white-space: nowrap;
-}
-.reel-text-btn:hover { background: #ede9fe; }
-
 /* ── Modal ── */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.55);
-  backdrop-filter: blur(4px); z-index: 1000;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px; opacity: 0; transition: opacity .2s;
-}
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity .2s; }
 .modal-overlay.visible { opacity: 1; }
-.modal {
-  background: white; border-radius: 20px; max-width: 520px; width: 100%;
-  max-height: 85vh; overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(109,40,217,.25);
-  transform: translateY(16px); transition: transform .2s;
-}
+.modal { background: white; border-radius: 20px; max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(109,40,217,.25); transform: translateY(16px); transition: transform .2s; }
 .modal-overlay.visible .modal { transform: translateY(0); }
-
-.modal-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 18px 20px 14px; border-bottom: 1px solid #f3f4f6;
-  position: sticky; top: 0; background: white; border-radius: 20px 20px 0 0;
-}
-.modal-thumb {
-  width: 48px; height: 48px; border-radius: 10px; object-fit: cover;
-  background: linear-gradient(135deg,#ede9fe,#fce7f3); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-}
-.modal-thumb img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; }
-.modal-meta { flex: 1; min-width: 0; }
+.modal-header { display: flex; align-items: center; gap: 11px; padding: 16px 18px 13px; border-bottom: 1px solid #f3f4f6; position: sticky; top: 0; background: white; border-radius: 20px 20px 0 0; z-index: 1; }
+.modal-thumb { width: 46px; height: 46px; border-radius: 9px; background: linear-gradient(135deg,#ede9fe,#fce7f3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 19px; overflow: hidden; }
+.modal-thumb img { width: 100%; height: 100%; border-radius: 9px; object-fit: cover; }
 .modal-meta strong { display: block; font-size: 14px; color: #1a0533; }
-.modal-meta span { font-size: 12px; color: #9ca3af; }
-.modal-close {
-  background: #f5f3ff; border: none; border-radius: 50%;
-  width: 32px; height: 32px; cursor: pointer; font-size: 18px; color: #7c3aed;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  transition: background .15s;
-}
+.modal-meta span { font-size: 11px; color: #9ca3af; }
+.modal-close { background: #f5f3ff; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 17px; color: #7c3aed; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: auto; }
 .modal-close:hover { background: #ede9fe; }
-
-.modal-body { padding: 18px 20px 20px; }
-.modal-text {
-  font-size: 14px; line-height: 1.7; color: #374151;
-  white-space: pre-wrap; word-break: break-word;
-  background: #faf5ff; border-radius: 12px; padding: 14px 16px;
-  border: 1px solid #ede9fe; margin-bottom: 14px;
-  max-height: 320px; overflow-y: auto;
-}
-.modal-text.empty { color: #c4b5fd; font-style: italic; }
-.modal-actions { display: flex; gap: 8px; }
-.modal-copy-btn {
-  background: var(--grad); color: white; border: none; border-radius: 9px;
-  padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
-  transition: opacity .15s;
-}
+.modal-body { padding: 16px 18px 18px; }
+.modal-label { font-size: 10.5px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 7px; }
+.modal-caption { font-size: 13px; line-height: 1.65; color: #374151; white-space: pre-wrap; word-break: break-word; background: #faf5ff; border-radius: 11px; padding: 12px 14px; border: 1px solid #ede9fe; margin-bottom: 14px; max-height: 180px; overflow-y: auto; }
+.modal-caption.empty { color: #c4b5fd; font-style: italic; }
+.transcription-wrap { margin-bottom: 4px; }
+.transcribe-btn { width: 100%; background: var(--grad); color: white; border: none; border-radius: 11px; padding: 11px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.transcribe-btn:hover { opacity: .88; }
+.transcribe-btn:disabled { opacity: .5; cursor: default; }
+.transcription-loading { display: flex; align-items: center; gap: 9px; background: #faf5ff; border: 1px solid #ede9fe; border-radius: 11px; padding: 12px 14px; color: #7c3aed; font-size: 13px; }
+.mini-spinner { width: 17px; height: 17px; border: 2.5px solid #ede9fe; border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+.transcription-result { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 11px; padding: 12px 14px; font-size: 13px; line-height: 1.65; color: #166534; white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto; }
+.transcription-error { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 11px; padding: 11px 14px; font-size: 12px; color: #9f1239; margin-bottom: 10px; }
+.modal-actions { display: flex; gap: 7px; margin-top: 12px; }
+.modal-copy-btn { background: var(--grad); color: white; border: none; border-radius: 8px; padding: 8px 15px; font-size: 12px; font-weight: 700; cursor: pointer; }
 .modal-copy-btn:hover { opacity: .88; }
-.modal-open-btn {
-  color: var(--purple); background: #f5f3ff; border: 1px solid #ddd6fe;
-  border-radius: 9px; padding: 9px 16px; font-size: 13px; font-weight: 700;
-  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
-  transition: background .15s;
-}
+.modal-open-btn { color: var(--purple); background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 8px 13px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
 .modal-open-btn:hover { background: #ede9fe; }
 
-.page-footer { text-align: center; padding: 20px; font-size: 12px; color: #c4b5fd; }
+.page-footer { text-align: center; padding: 18px; font-size: 11px; color: #c4b5fd; }
 
 @media (max-width: 520px) {
-  .accounts-wrap, .formula-pill-bar { padding-left: 16px; padding-right: 16px; }
-  .reels-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .reel-thumb { height: 150px; }
-  .reel-body { padding: 10px 12px; }
+  .reels-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .reel-thumb { height: 148px; }
+  .reel-body { padding: 9px 10px; }
+  .header { padding: 14px 16px; }
 }
 </style>
 </head>
@@ -237,7 +210,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
+  <div class="modal">
     <div class="modal-header">
       <div class="modal-thumb" id="modalThumb">🎬</div>
       <div class="modal-meta">
@@ -247,9 +220,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <button class="modal-close" onclick="hideModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="modal-text" id="modalText"></div>
+      <div class="modal-label">Подпись</div>
+      <div class="modal-caption" id="modalCaption"></div>
+      <div class="transcription-wrap">
+        <div class="modal-label">Расшифровка речи (Whisper AI)</div>
+        <div id="transcriptionArea">
+          <button class="transcribe-btn" onclick="startTranscription()">🎤 Расшифровать аудио</button>
+        </div>
+      </div>
       <div class="modal-actions">
-        <button class="modal-copy-btn" onclick="copyText()">📋 Скопировать</button>
+        <button class="modal-copy-btn" id="copyTranscriptionBtn" style="display:none" onclick="copyTranscription()">📋 Скопировать</button>
         <a class="modal-open-btn" id="modalLink" href="#" target="_blank">Открыть рилс →</a>
       </div>
     </div>
@@ -258,9 +238,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <div class="header">
   <h1>🎬 Reels Analyzer</h1>
-  <p>Топ рилсов за последний месяц · до 30 аккаунтов одновременно</p>
+  <p>до 10 лент · до 30 аккаунтов каждая</p>
 </div>
 
+<!-- Tabs -->
+<div class="tabs-bar" id="tabsBar"></div>
+
+<!-- Accounts -->
 <div class="accounts-wrap">
   <div class="add-row">
     <input type="text" id="addInput"
@@ -268,36 +252,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       onkeydown="if(event.key==='Enter') handleAdd()">
     <button class="add-btn" onclick="handleAdd()">+ Добавить</button>
   </div>
-  <div class="chips-row" id="chipsRow">
-    <span style="font-size:13px;color:#c4b5fd">Добавь аккаунты выше — они сохранятся между сессиями</span>
-  </div>
+  <div class="chips-row" id="chipsRow"></div>
 </div>
 
-<div class="formula-pill-bar">
+<div class="formula-bar">
   📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
-  &nbsp;·&nbsp; показываем топ-10 за последние 30 дней с каждого аккаунта
+  &nbsp;·&nbsp; топ-10 за последние 30 дней с каждого аккаунта
 </div>
 
-<div class="content">
-  <div id="main">
-    <div class="empty-state">
-      <div class="empty-icon">📱</div>
-      <h3>Добавь аккаунты для анализа</h3>
-      <p>Вставь ссылку или @username выше и нажми «+ Добавить»<br>
-      Рилсы со всех аккаунтов появятся здесь вперемешку, отсортированные по популярности</p>
-    </div>
-  </div>
-</div>
-
-<div class="page-footer">Reels Analyzer · данные обновляются при каждом открытии страницы</div>
+<div class="content"><div id="main"></div></div>
+<div class="page-footer">Reels Analyzer · данные обновляются при открытии ленты</div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────
-const WORKER_URL   = 'https://summer-lab-a729.proludey.workers.dev';
-const STORAGE_KEY  = 'reels_analyzer_v2_accounts';
-const MAX_ACCOUNTS = 30;
+const WORKER_URL  = 'https://summer-lab-a729.proludey.workers.dev';
+const STORAGE_KEY = 'reels_feeds_v3';
+const MAX_FEEDS   = 10;
+const MAX_ACCS    = 30;
 
 // ── Helpers ───────────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2, 9); }
 function fmt(n) {
   if (n == null || isNaN(n)) return '—';
   n = Number(n);
@@ -319,63 +293,112 @@ function fmtDate(ts) {
 }
 
 // ── Storage ───────────────────────────────────────────────────────────────
-function loadAccounts() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (s && s.feeds && s.feeds.length) return s;
+  } catch {}
+  const defaultFeed = { id: uid(), name: 'Лента 1', accounts: [] };
+  return { feeds: [defaultFeed], activeFeedId: defaultFeed.id };
 }
-function saveAccounts(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+let state = loadState();
+function activeFeed() { return state.feeds.find(f => f.id === state.activeFeedId) || state.feeds[0]; }
+
+// ── Feed cache (in-memory, per session) ───────────────────────────────────
+const feedCache = {}; // feedId → { reels, timestamp }
+
+// ── Feeds CRUD ────────────────────────────────────────────────────────────
+function addFeed() {
+  if (state.feeds.length >= MAX_FEEDS) return;
+  const f = { id: uid(), name: `Лента ${state.feeds.length + 1}`, accounts: [] };
+  state.feeds.push(f);
+  state.activeFeedId = f.id;
+  saveState();
+  renderTabs();
+  renderChips();
+  renderMain();
 }
 
-// ── Fetch ─────────────────────────────────────────────────────────────────
-async function fetchAccount(username) {
-  const url = `${WORKER_URL}/?username=${encodeURIComponent(username)}`;
-  const resp = await fetch(url, { signal: AbortSignal.timeout(20000) });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data?.error || `Ошибка ${resp.status}`);
-  if (!data?.user) throw new Error('Аккаунт не найден или закрытый');
-
-  const monthAgo = Date.now()/1000 - 30*24*3600;
-  const recent   = (data.reels || []).filter(r => r.timestamp > monthAgo);
-  const top10    = recent
-    .map(r => ({ ...r, score: calcScore(r.views, r.likes, r.comments, r.timestamp) }))
-    .sort((a,b) => b.score - a.score)
-    .slice(0, 10)
-    .map(r => ({ ...r, accountUsername: data.user.username, accountAvatar: data.user.avatar }));
-
-  return { profile: data.user, reels: top10, totalRecent: recent.length };
+function deleteFeed(id) {
+  if (state.feeds.length <= 1) { alert('Нельзя удалить последнюю ленту'); return; }
+  if (!confirm(`Удалить ленту "${state.feeds.find(f=>f.id===id)?.name}"?`)) return;
+  state.feeds = state.feeds.filter(f => f.id !== id);
+  if (state.activeFeedId === id) state.activeFeedId = state.feeds[0].id;
+  delete feedCache[id];
+  saveState();
+  renderTabs();
+  renderChips();
+  renderMain();
 }
 
-// ── Chips UI ──────────────────────────────────────────────────────────────
+function switchFeed(id) {
+  if (state.activeFeedId === id) return;
+  state.activeFeedId = id;
+  saveState();
+  renderTabs();
+  renderChips();
+  renderMain();
+  // Load if not cached
+  if (!feedCache[id]) fetchAndRender();
+  else renderFromCache(id);
+}
+
+function renameFeed(id, name) {
+  const f = state.feeds.find(f => f.id === id);
+  if (f) { f.name = name.trim() || f.name; saveState(); }
+}
+
+// ── Tabs UI ───────────────────────────────────────────────────────────────
+function renderTabs() {
+  const bar = document.getElementById('tabsBar');
+  const active = state.activeFeedId;
+
+  bar.innerHTML = state.feeds.map(f => `
+    <div class="tab ${f.id === active ? 'active' : ''}" onclick="switchFeed('${f.id}')">
+      <input class="tab-name"
+        value="${f.name.replace(/"/g,'&quot;')}"
+        title="Двойной клик — переименовать"
+        readonly
+        ondblclick="this.removeAttribute('readonly'); this.select()"
+        onblur="this.setAttribute('readonly',''); renameFeed('${f.id}', this.value); renderTabs()"
+        onkeydown="if(event.key==='Enter'){this.blur()} event.stopPropagation()"
+        onclick="event.stopPropagation()"
+      >
+      <button class="tab-del" title="Удалить ленту" onclick="event.stopPropagation(); deleteFeed('${f.id}')">×</button>
+    </div>
+  `).join('') + `
+    <div class="tab-add ${state.feeds.length >= MAX_FEEDS ? 'disabled' : ''}"
+         title="${state.feeds.length >= MAX_FEEDS ? 'Максимум 10 лент' : 'Добавить ленту'}"
+         onclick="${state.feeds.length < MAX_FEEDS ? 'addFeed()' : ''}">+</div>
+  `;
+}
+
+// ── Account chips ─────────────────────────────────────────────────────────
 function renderChips() {
-  const accounts = loadAccounts();
-  const row = document.getElementById('chipsRow');
-  if (!accounts.length) {
-    row.innerHTML = '<span style="font-size:13px;color:#c4b5fd">Добавь аккаунты выше — они сохранятся между сессиями</span>';
+  const feed = activeFeed();
+  const row  = document.getElementById('chipsRow');
+  if (!feed.accounts.length) {
+    row.innerHTML = '<span class="no-accounts">Добавь аккаунты — они сохранятся в этой ленте</span>';
     return;
   }
-  row.innerHTML = accounts.map(u => `
-    <div class="chip" id="chip-${u}">
-      <div class="chip-avatar-placeholder" id="chip-avatar-${u}">@</div>
+  row.innerHTML = feed.accounts.map(u => `
+    <div class="chip" id="chip-${feed.id}-${u}">
+      <div class="chip-ph" id="chip-av-${feed.id}-${u}">@</div>
       <span>@${u}</span>
-      <button class="chip-remove" onclick="removeAccount('${u}')" title="Удалить">×</button>
+      <button class="chip-del" onclick="removeAccount('${u}')">×</button>
     </div>
-  `).join('') + (accounts.length < MAX_ACCOUNTS
-    ? `<span style="font-size:12px;color:#c4b5fd">${accounts.length}/${MAX_ACCOUNTS}</span>`
-    : `<span style="font-size:12px;color:#f97316;font-weight:700">Максимум ${MAX_ACCOUNTS} аккаунтов</span>`);
+  `).join('') + `<span style="font-size:11px;color:#c4b5fd">${feed.accounts.length}/${MAX_ACCS}</span>`;
 }
 
-function updateChipAvatar(username, avatarUrl) {
-  const el = document.getElementById(`chip-avatar-${username}`);
-  if (el && avatarUrl) {
-    el.outerHTML = `<img id="chip-avatar-${username}" src="${avatarUrl}" onerror="this.style.display='none'" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">`;
-  }
+function updateChipAvatar(feedId, username, url) {
+  const el = document.getElementById(`chip-av-${feedId}-${username}`);
+  if (el && url) el.outerHTML = `<img id="chip-av-${feedId}-${username}" src="${url}" style="width:18px;height:18px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
 }
-
-function setChipState(username, state) {
-  const chip = document.getElementById(`chip-${username}`);
-  if (!chip) return;
-  chip.classList.toggle('chip-loading', state === 'loading');
-  chip.classList.toggle('chip-error',   state === 'error');
+function setChipState(feedId, username, s) {
+  const c = document.getElementById(`chip-${feedId}-${username}`);
+  if (c) { c.classList.toggle('chip-loading', s==='loading'); c.classList.toggle('chip-error', s==='error'); }
 }
 
 // ── Account management ────────────────────────────────────────────────────
@@ -384,126 +407,126 @@ function handleAdd() {
   if (!raw) return;
   const username = extractUsername(raw);
   if (!username) return;
-
-  const accounts = loadAccounts();
-  if (accounts.length >= MAX_ACCOUNTS) { alert(`Максимум ${MAX_ACCOUNTS} аккаунтов`); return; }
-  if (accounts.map(a=>a.toLowerCase()).includes(username.toLowerCase())) {
-    alert(`@${username} уже добавлен`); return;
-  }
-  accounts.push(username);
-  saveAccounts(accounts);
+  const feed = activeFeed();
+  if (feed.accounts.length >= MAX_ACCS) { alert(`Максимум ${MAX_ACCS} аккаунтов`); return; }
+  if (feed.accounts.map(a=>a.toLowerCase()).includes(username.toLowerCase())) { alert(`@${username} уже в ленте`); return; }
+  feed.accounts.push(username);
+  delete feedCache[feed.id];
+  saveState();
   document.getElementById('addInput').value = '';
   renderChips();
   fetchAndRender();
 }
 
 function removeAccount(username) {
-  const accounts = loadAccounts().filter(a => a.toLowerCase() !== username.toLowerCase());
-  saveAccounts(accounts);
+  const feed = activeFeed();
+  feed.accounts = feed.accounts.filter(a => a.toLowerCase() !== username.toLowerCase());
+  delete feedCache[feed.id];
+  saveState();
   renderChips();
   fetchAndRender();
 }
 
-// ── Main render ───────────────────────────────────────────────────────────
+// ── Fetch ─────────────────────────────────────────────────────────────────
+async function fetchAccount(username) {
+  const resp = await fetch(`${WORKER_URL}/?username=${encodeURIComponent(username)}`, { signal: AbortSignal.timeout(20000) });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data?.error || `Ошибка ${resp.status}`);
+  if (!data?.user) throw new Error('Аккаунт не найден или закрытый');
+  const monthAgo = Date.now()/1000 - 30*24*3600;
+  const top10 = (data.reels || [])
+    .filter(r => r.timestamp > monthAgo)
+    .map(r => ({ ...r, score: calcScore(r.views, r.likes, r.comments, r.timestamp) }))
+    .sort((a,b) => b.score - a.score).slice(0, 10)
+    .map(r => ({ ...r, accountUsername: data.user.username, accountAvatar: data.user.avatar }));
+  return { profile: data.user, reels: top10 };
+}
+
 function setMain(html) { document.getElementById('main').innerHTML = html; }
 
 async function fetchAndRender() {
-  const accounts = loadAccounts();
-  if (!accounts.length) {
-    setMain(`<div class="empty-state">
-      <div class="empty-icon">📱</div>
-      <h3>Добавь аккаунты для анализа</h3>
-      <p>Вставь ссылку или @username выше и нажми «+ Добавить»<br>
-      Рилсы со всех аккаунтов появятся здесь вперемешку, отсортированные по популярности</p>
-    </div>`);
-    return;
-  }
+  const feed = activeFeed();
+  if (!feed.accounts.length) { renderMain(); return; }
 
-  // Loading state
-  setMain(`<div class="loading-state">
-    <div class="spinner"></div>
-    <p>Загружаю рилсы…</p>
-    <div class="loading-progress" id="loadProgress">0 / ${accounts.length} аккаунтов</div>
-  </div>`);
-
-  accounts.forEach(u => setChipState(u, 'loading'));
+  setMain(`<div class="loading-state"><div class="spinner"></div><p>Загружаю «${feed.name}»…</p><div class="loading-progress" id="loadProgress">0 / ${feed.accounts.length} аккаунтов</div></div>`);
+  feed.accounts.forEach(u => setChipState(feed.id, u, 'loading'));
 
   let done = 0;
   const errors = [];
-
-  const results = await Promise.allSettled(accounts.map(async username => {
+  const results = await Promise.allSettled(feed.accounts.map(async u => {
     try {
-      const result = await fetchAccount(username);
-      updateChipAvatar(username, result.profile.avatar);
-      setChipState(username, 'ok');
+      const r = await fetchAccount(u);
+      updateChipAvatar(feed.id, u, r.profile.avatar);
+      setChipState(feed.id, u, 'ok');
       done++;
-      const prog = document.getElementById('loadProgress');
-      if (prog) prog.textContent = `${done} / ${accounts.length} аккаунтов`;
-      return result;
+      const el = document.getElementById('loadProgress');
+      if (el) el.textContent = `${done} / ${feed.accounts.length} аккаунтов`;
+      return r;
     } catch(e) {
-      setChipState(username, 'error');
-      errors.push({ username, error: e.message });
-      done++;
-      throw e;
+      setChipState(feed.id, u, 'error');
+      errors.push({ username: u, error: e.message });
+      done++; throw e;
     }
   }));
 
-  // Collect all reels
   const allReels = [];
-  let totalRecent = 0;
-  results.forEach(r => {
-    if (r.status === 'fulfilled') {
-      allReels.push(...r.value.reels);
-      totalRecent += r.value.totalRecent;
-    }
-  });
+  results.forEach(r => { if (r.status === 'fulfilled') allReels.push(...r.value.reels); });
+  allReels.sort((a,b) => b.score - a.score);
+
+  feedCache[feed.id] = { reels: allReels, errors, ts: Date.now() };
+  renderReels(feed, allReels, errors);
+}
+
+function renderFromCache(feedId) {
+  const c = feedCache[feedId];
+  const feed = state.feeds.find(f => f.id === feedId);
+  if (c && feed) renderReels(feed, c.reels, c.errors);
+}
+
+// ── Render reels ──────────────────────────────────────────────────────────
+let _reelsCache = [];
+
+function renderMain() {
+  const feed = activeFeed();
+  if (!feed.accounts.length) {
+    setMain(`<div class="empty-state"><div class="empty-icon">📱</div><h3>Лента пустая</h3><p>Добавь аккаунты выше, чтобы увидеть рилсы</p></div>`);
+    return;
+  }
+  if (feedCache[feed.id]) renderFromCache(feed.id);
+  else fetchAndRender();
+}
+
+function renderReels(feed, allReels, errors) {
+  _reelsCache = allReels;
 
   if (!allReels.length) {
-    setMain(`<div class="empty-state">
-      <div class="empty-icon">😕</div>
-      <h3>Рилсов за последний месяц нет</h3>
-      <p>Ни один из добавленных аккаунтов не публиковал рилсы за последние 30 дней</p>
-    </div>`);
+    setMain(`<div class="empty-state"><div class="empty-icon">😕</div><h3>Нет рилсов за последний месяц</h3><p>Ни один аккаунт не публиковал рилсы за 30 дней</p></div>`);
     return;
   }
 
-  // Sort all reels by score
-  allReels.sort((a,b) => b.score - a.score);
-  _allReelsCache = allReels; // сохраняем для модала
+  const maxScore = allReels[0].score;
+  const dateFrom = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const ok       = feed.accounts.length - errors.length;
 
-  const maxScore   = allReels[0].score;
-  const dateFrom   = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const dateTo     = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const successCnt = results.filter(r=>r.status==='fulfilled').length;
+  let errHtml = '';
+  if (errors.length) errHtml = `<div class="errors-box"><strong>⚠️ Не загрузились (${errors.length}):</strong>${errors.map(e=>`@${e.username}: ${e.error}`).join(' · ')}</div>`;
 
-  let errorsHtml = '';
-  if (errors.length) {
-    errorsHtml = `<div class="errors-box">
-      <strong>⚠️ Не удалось загрузить ${errors.length} аккаунт(а):</strong>
-      ${errors.map(e=>`@${e.username}: ${e.error}`).join(' · ')}
-    </div>`;
-  }
-
-  let cardsHtml = '';
+  let cards = '';
   allReels.forEach((reel, i) => {
-    const rank      = i + 1;
-    const rankLabel = rank===1?'🥇 #1':rank===2?'🥈 #2':rank===3?'🥉 #3':`#${rank}`;
-    const pct       = Math.round((reel.score / maxScore) * 100);
-    const d         = Math.round((Date.now()/1000 - reel.timestamp)/86400);
-    const desc      = reel.description
-      ? reel.description.replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      : '<em style="color:#ccc">без описания</em>';
-    const avatarTag = reel.accountAvatar
-      ? `<img src="${reel.accountAvatar}" onerror="this.style.display='none'">`
-      : '';
-
-    cardsHtml += `
+    const rank = i+1;
+    const rl   = rank===1?'🥇 #1':rank===2?'🥈 #2':rank===3?'🥉 #3':`#${rank}`;
+    const pct  = Math.round((reel.score/maxScore)*100);
+    const d    = Math.round((Date.now()/1000 - reel.timestamp)/86400);
+    const desc = reel.description ? reel.description.replace(/</g,'&lt;').replace(/>/g,'&gt;') : '<em style="color:#ccc">без описания</em>';
+    const av   = reel.accountAvatar ? `<img src="${reel.accountAvatar}" onerror="this.style.display='none'">` : '';
+    cards += `
       <div class="reel-card" onclick="window.open('${reel.url}','_blank')">
         <div class="reel-thumb">
-          ${reel.thumbnail ? `<img src="${reel.thumbnail}" onerror="this.style.display='none'" loading="lazy"><div class="play-icon">▶</div>` : '🎬'}
-          <div class="badge-rank">${rankLabel}</div>
+          ${reel.thumbnail?`<img src="${reel.thumbnail}" onerror="this.style.display='none'" loading="lazy"><div class="play-icon">▶</div>`:'🎬'}
+          <div class="badge-rank">${rl}</div>
           <div class="badge-score">⚡ ${fmt(Math.round(reel.score))}</div>
-          <div class="badge-account">${avatarTag}<span>@${reel.accountUsername}</span></div>
+          <div class="badge-account">${av}<span>@${reel.accountUsername}</span></div>
         </div>
         <div class="reel-body">
           <div class="reel-desc">${desc}</div>
@@ -514,9 +537,9 @@ async function fetchAndRender() {
             <div class="stat"><div class="stat-v">💬 ${fmt(reel.comments)}</div><div class="stat-l">коммент.</div></div>
           </div>
           <div class="reel-footer">
-            <span class="reel-date">${fmtDate(reel.timestamp)} · ${d}д назад</span>
-            <div style="display:flex;gap:6px">
-              <button class="reel-text-btn" onclick="event.stopPropagation(); showText(${i})">📝 Текст</button>
+            <span class="reel-date">${fmtDate(reel.timestamp)} · ${d}д</span>
+            <div class="reel-btns">
+              <button class="reel-text-btn" onclick="event.stopPropagation();showText(${i})">📝 Текст</button>
               <a class="reel-open" href="${reel.url}" target="_blank" onclick="event.stopPropagation()">→</a>
             </div>
           </div>
@@ -525,81 +548,103 @@ async function fetchAndRender() {
   });
 
   setMain(`
-    ${errorsHtml}
+    ${errHtml}
     <div class="period-bar">
-      <span>📅</span>
-      <span>Период: <strong>${dateFrom} — ${dateTo}</strong></span>
-      <span>·</span>
-      <span>${successCnt} из ${accounts.length} аккаунтов загружено</span>
+      <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
+      <span>${ok} из ${feed.accounts.length} аккаунтов</span>
       <div class="period-count">${allReels.length} рилсов</div>
     </div>
-    <div class="section-title">Все рилсы по популярности</div>
-    <div class="reels-grid">${cardsHtml}</div>
-  `);
+    <div class="section-title">Все рилсы по популярности — «${feed.name}»</div>
+    <div class="reels-grid">${cards}</div>`);
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────
-let _allReelsCache = [];
+let _currentIdx = -1;
+const _txCache  = {};
 
-function showText(index) {
-  const reel = _allReelsCache[index];
+function showText(idx) {
+  const reel = _reelsCache[idx];
   if (!reel) return;
+  _currentIdx = idx;
 
-  // Thumbnail
-  const thumbEl = document.getElementById('modalThumb');
-  if (reel.thumbnail) {
-    thumbEl.innerHTML = `<img src="${reel.thumbnail}" onerror="this.parentElement.innerHTML='🎬'">`;
-  } else {
-    thumbEl.innerHTML = '🎬';
-  }
-
-  // Meta
+  const th = document.getElementById('modalThumb');
+  th.innerHTML = reel.thumbnail ? `<img src="${reel.thumbnail}" onerror="this.parentElement.innerHTML='🎬'">` : '🎬';
   document.getElementById('modalAccount').textContent = `@${reel.accountUsername}`;
-  document.getElementById('modalDate').textContent = `${fmtDate(reel.timestamp)} · 👁 ${fmt(reel.views)}  ❤️ ${fmt(reel.likes)}  💬 ${fmt(reel.comments)}`;
-  document.getElementById('modalLink').href = reel.url;
+  document.getElementById('modalDate').textContent    = `${fmtDate(reel.timestamp)} · 👁 ${fmt(reel.views)}  ❤️ ${fmt(reel.likes)}  💬 ${fmt(reel.comments)}`;
+  document.getElementById('modalLink').href           = reel.url;
 
-  // Text
-  const textEl = document.getElementById('modalText');
-  if (reel.description && reel.description.trim()) {
-    textEl.textContent = reel.description;
-    textEl.classList.remove('empty');
+  const cap = document.getElementById('modalCaption');
+  if (reel.description?.trim()) { cap.textContent = reel.description; cap.classList.remove('empty'); }
+  else { cap.textContent = 'Подпись отсутствует'; cap.classList.add('empty'); }
+
+  document.getElementById('copyTranscriptionBtn').style.display = 'none';
+  const area = document.getElementById('transcriptionArea');
+  if (_txCache[reel.shortcode]) {
+    showTxResult(_txCache[reel.shortcode]);
+  } else if (!reel.video_url) {
+    area.innerHTML = `<div class="transcription-error">⚠️ URL видео недоступен</div>`;
   } else {
-    textEl.textContent = 'Описание отсутствует';
-    textEl.classList.add('empty');
+    area.innerHTML = `<button class="transcribe-btn" onclick="startTranscription()">🎤 Расшифровать аудио</button>`;
   }
 
-  // Show
-  const overlay = document.getElementById('modalOverlay');
-  overlay.style.display = 'flex';
-  requestAnimationFrame(() => overlay.classList.add('visible'));
+  const ov = document.getElementById('modalOverlay');
+  ov.style.display = 'flex';
+  requestAnimationFrame(() => ov.classList.add('visible'));
   document.body.style.overflow = 'hidden';
 }
 
+async function startTranscription() {
+  const reel = _reelsCache[_currentIdx];
+  if (!reel?.video_url) return;
+  const area = document.getElementById('transcriptionArea');
+  area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
+  try {
+    const resp = await fetch(`${WORKER_URL}/?action=transcribe&video_url=${encodeURIComponent(reel.video_url)}`, { signal: AbortSignal.timeout(90000) });
+    const data = await resp.json();
+    if (!resp.ok || data.error) {
+      area.innerHTML = `<div class="transcription-error">😕 ${data.error||'Ошибка'}</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`;
+      return;
+    }
+    _txCache[reel.shortcode] = data.transcription;
+    showTxResult(data.transcription);
+  } catch {
+    area.innerHTML = `<div class="transcription-error">😕 Время ожидания истекло</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`;
+  }
+}
+
+function showTxResult(text) {
+  const area = document.getElementById('transcriptionArea');
+  const btn  = document.getElementById('copyTranscriptionBtn');
+  if (text?.trim()) {
+    area.innerHTML = `<div class="transcription-result">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+    btn.style.display = 'flex';
+  } else {
+    area.innerHTML = `<div class="transcription-error">🔇 Речь не обнаружена</div>`;
+  }
+}
+
 function hideModal() {
-  const overlay = document.getElementById('modalOverlay');
-  overlay.classList.remove('visible');
-  setTimeout(() => { overlay.style.display = 'none'; }, 200);
+  const ov = document.getElementById('modalOverlay');
+  ov.classList.remove('visible');
+  setTimeout(() => { ov.style.display='none'; }, 200);
   document.body.style.overflow = '';
 }
-
-function closeModal(e) {
-  if (e.target === document.getElementById('modalOverlay')) hideModal();
-}
-
-function copyText() {
-  const text = document.getElementById('modalText').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.modal-copy-btn');
-    btn.textContent = '✅ Скопировано!';
-    setTimeout(() => btn.textContent = '📋 Скопировать', 1800);
+function closeModal(e) { if (e.target===document.getElementById('modalOverlay')) hideModal(); }
+function copyTranscription() {
+  const el = document.querySelector('.transcription-result');
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const b = document.getElementById('copyTranscriptionBtn');
+    b.textContent = '✅ Скопировано!';
+    setTimeout(() => b.textContent = '📋 Скопировать', 2000);
   });
 }
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') hideModal(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') hideModal(); });
 
 // ── Init ──────────────────────────────────────────────────────────────────
+renderTabs();
 renderChips();
-if (loadAccounts().length > 0) fetchAndRender();
+renderMain();
 </script>
 </body>
 </html>
