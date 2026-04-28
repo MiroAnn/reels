@@ -185,6 +185,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .vp-card-label { font-size: 10px; color: #9ca3af; margin-top: 5px; }
 .vp-card.vp-low  { background: #f0fdf4; } .vp-card.vp-mid  { background: #fefce8; }
 .vp-card.vp-high { background: #fff7ed; } .vp-card.vp-very { background: #fdf4ff; }
+.alist { display: flex; flex-direction: column; gap: 7px; }
+.alist-row { display: flex; align-items: baseline; gap: 10px; padding: 6px 10px; background: #faf5ff; border-radius: 8px; border: 1px solid #ede9fe; }
+.alist-acc { font-size: 10px; font-weight: 700; color: #a78bfa; white-space: nowrap; flex-shrink: 0; }
+.alist-text { font-size: 12px; color: #1a0533; line-height: 1.5; }
 
 .page-footer { text-align: center; padding: 18px; font-size: 11px; color: #c4b5fd; }
 
@@ -789,11 +793,16 @@ function renderAnalyticsPage() {
 
   // Aggregate counts
   const counts = { тема:{}, боль:{}, формат:{}, виральность:{}, интерес:{}, вирал_потенциал:{} };
-  analyses.forEach(a => {
+  const lists  = { хук: [], cta: [] };
+  analyses.forEach((a, idx) => {
     const add = (obj, val) => { if (val && val !== 'Не хватает данных') obj[val] = (obj[val]||0)+1; };
     add(counts.тема, a.тема); add(counts.боль, a.боль); add(counts.формат, a.формат);
     add(counts.интерес, a.интерес); add(counts.вирал_потенциал, a.вирал_потенциал);
     (a.виральность||[]).forEach(v => add(counts.виральность, v));
+    const reel = _feedsReels[idx];
+    const acc  = reel ? (reel.accountUsername || reel.username || '') : '';
+    if (a.хук  && a.хук  !== 'Не хватает данных') lists.хук.push({ text: a.хук,  acc });
+    if (a.cta  && a.cta  !== 'Не хватает данных' && a.cta !== 'Отсутствует') lists.cta.push({ text: a.cta, acc });
   });
 
   const sortedEntries = obj => Object.entries(obj).sort((a,b)=>b[1]-a[1]);
@@ -821,13 +830,26 @@ function renderAnalyticsPage() {
       <div class="vp-card vp-low"><div class="vp-card-count">${vp['Низкий']||0}</div><div class="vp-card-label">Низкий</div></div>
     </div></div>`;
 
+  function listSectionHtml(title, items) {
+    if (!items.length) return '';
+    return `<div class="analytics-section"><h3>${title}</h3>
+      <div class="alist">${items.map(({text, acc}) => `
+        <div class="alist-row">
+          ${acc ? `<span class="alist-acc">@${acc}</span>` : ''}
+          <span class="alist-text">${text.replace(/</g,'&lt;')}</span>
+        </div>`).join('')}
+      </div></div>`;
+  }
+
   document.getElementById('analyticsContent').innerHTML =
     vpGrid +
     sectionHtml('📌 Темы', counts.тема) +
     sectionHtml('💢 Боли аудитории', counts.боль) +
     sectionHtml('🎬 Форматы', counts.формат) +
     sectionHtml('⚡ Критерии виральности', counts.виральность) +
-    sectionHtml('🎯 Удержание интереса', counts.интерес);
+    sectionHtml('🎯 Удержание интереса', counts.интерес) +
+    listSectionHtml('🎣 Хуки', lists.хук) +
+    listSectionHtml('📣 CTA', lists.cta);
 }
 
 function showTxResult(text) {
