@@ -59,6 +59,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 /* ── Formula bar ── */
 .formula-bar { padding: 7px 20px; background: #faf5ff; border-bottom: 1px solid #ede9fe; font-size: 11.5px; color: #6d28d9; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .formula-bar code { font-family: monospace; background: #ede9fe; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; }
+.bg-progress { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 11px; color: #7c3aed; }
+.bg-progress-bar { width: 80px; height: 5px; background: #ddd6fe; border-radius: 99px; overflow: hidden; }
+.bg-progress-fill { height: 100%; background: var(--grad); border-radius: 99px; transition: width .4s; }
 
 /* ── Content ── */
 .content { max-width: 1020px; margin: 0 auto; padding: 20px 20px 48px; }
@@ -256,6 +259,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="formula-bar">
     📊 Score = <code>(Views + Likes×15 + Comments×50) ÷ √(дней+1)</code>
     &nbsp;·&nbsp; топ-10 за 30 дней с каждого аккаунта
+    <div class="bg-progress" id="bgProgress" style="display:none">
+      <div class="bg-progress-bar"><div class="bg-progress-fill" id="bgProgressFill" style="width:0%"></div></div>
+      <span id="bgProgressText">⚙️ 0 / 0</span>
+    </div>
   </div>
   <div class="content"><div id="main"></div></div>
 </div>
@@ -289,6 +296,71 @@ function loadAnalysisCache() {
 function saveAnalysisCache() { localStorage.setItem(ANALYSIS_KEY, JSON.stringify(_analysisCache)); }
 function getAnalysis(shortcode) { return _analysisCache[shortcode] || null; }
 function setAnalysis(shortcode, data) { _analysisCache[shortcode] = data; saveAnalysisCache(); updateCardTags(shortcode); }
+
+// ── Background analysis queue ─────────────────────────────────────────────
+let _bgQueue      = [];
+let _bgTotal      = 0;
+let _bgDone       = 0;
+let _bgCancelled  = false;
+let _bgActive     = false;
+const BG_CONCURRENCY = 2;
+
+function startBgAnalysis(reels) {
+  _bgCancelled = false;
+  _bgQueue     = reels.slice(0, 30).filter(r => !getAnalysis(r.shortcode) && r.shortcode);
+  _bgTotal     = _bgQueue.length;
+  _bgDone      = 0;
+  updateBgUI();
+  if (!_bgTotal || _bgActive) return;
+  _bgActive = true;
+  const workers = Array.from({ length: BG_CONCURRENCY }, () => bgWorker());
+  Promise.all(workers).then(() => { _bgActive = false; updateBgUI(); });
+}
+function cancelBgAnalysis() { _bgCancelled = true; _bgQueue = []; }
+
+async function bgWorker() {
+  while (!_bgCancelled) {
+    const reel = _bgQueue.shift();
+    if (!reel) break;
+    if (getAnalysis(reel.shortcode)) { _bgDone++; updateBgUI(); continue; }
+    try {
+      let tx = _txCache[reel.shortcode] || '';
+      if (!tx && reel.video_url) {
+        const r = await fetch(`${WORKER_URL}/?action=transcribe&video_url=${encodeURIComponent(reel.video_url)}`,
+          { signal: AbortSignal.timeout(90000) });
+        const d = await r.json();
+        if (r.ok && d.transcription) { tx = d.transcription; _txCache[reel.shortcode] = tx; }
+      }
+      const r2 = await fetch(`${WORKER_URL}/?action=analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcription: tx, caption: reel.caption || '' }),
+        signal: AbortSignal.timeout(40000),
+      });
+      const d2 = await r2.json();
+      if (r2.ok && d2.analysis) setAnalysis(reel.shortcode, d2.analysis);
+    } catch(e) { /* skip */ }
+    _bgDone++;
+    updateBgUI();
+  }
+}
+
+function updateBgUI() {
+  const el   = document.getElementById('bgProgress');
+  const fill = document.getElementById('bgProgressFill');
+  const txt  = document.getElementById('bgProgressText');
+  if (!el) return;
+  if (!_bgTotal) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const pct = Math.round(_bgDone / _bgTotal * 100);
+  if (fill) fill.style.width = pct + '%';
+  if (_bgDone >= _bgTotal) {
+    if (txt) txt.textContent = `✅ ${_bgTotal} проанализировано`;
+    setTimeout(() => { el.style.display = 'none'; _bgTotal = 0; }, 3000);
+  } else {
+    if (txt) txt.textContent = `⚙️ ${_bgDone} / ${_bgTotal}`;
+  }
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -350,6 +422,7 @@ function deleteFeed(id) {
 }
 function switchFeed(id) {
   if (state.activeFeedId === id) return;
+  cancelBgAnalysis();
   state.activeFeedId = id;
   saveState(); renderTabs(); renderChips(); renderMain();
   if (!feedCache[id]) fetchAndRender(); else renderFromCache(id);
@@ -434,20 +507,10 @@ async function fetchAccount(username) {
   if (!resp.ok) throw new Error(data?.error || `Ошибка ${resp.status}`);
   if (!data?.user) throw new Error('Аккаунт не найден или закрытый');
   const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
-  const mapped = (data.reels || []).map(r => ({
-    ...r,
-    // fix taken_at=0: treat as unknown (use Date.now so score isn't penalised to zero)
-    timestamp: r.timestamp > 1000000000000 ? r.timestamp : Date.now(),
-    score: 0,
-    accountUsername: data.user.username,
-    accountAvatar: data.user.avatar,
-  })).map(r => ({ ...r, score: calcScore(r) }));
-
-  // prefer reels within 30 days; fall back to all if none pass the filter
-  const recent = mapped.filter(r => r.timestamp >= monthAgo);
-  const pool   = recent.length ? recent : mapped;
-  const top10  = pool.sort((a,b) => b.score - a.score).slice(0, 10)
-                     .map(r => ({ ...r, _stale: !recent.length }));
+  const top10 = (data.reels || [])
+    .filter(r => r.timestamp > monthAgo)
+    .map(r => ({ ...r, score: calcScore(r), accountUsername: data.user.username, accountAvatar: data.user.avatar }))
+    .sort((a,b) => b.score - a.score).slice(0, 10);
   return { profile: data.user, reels: top10 };
 }
 
@@ -554,12 +617,12 @@ function renderReels(feed, allReels, errors) {
   const dateFrom = new Date(Date.now()-30*24*3600*1000).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   const dateTo   = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   const ok       = feed.accounts.length - errors.length;
-  const hasStale = allReels.some(r => r._stale);
   let errHtml = '';
   if (errors.length) errHtml = `<div class="errors-box"><strong>⚠️ Не загрузились (${errors.length}):</strong>${errors.map(e=>`@${e.username}: ${e.error}`).join(' · ')}</div>`;
-  const staleHtml = hasStale ? `<div class="errors-box" style="background:#fdf4ff;border-color:#ddd6fe;color:#6b21a8">⚠️ У некоторых аккаунтов Instagram не вернул дату публикации — показаны последние доступные рилсы</div>` : '';
   const cards = allReels.map((r, i) => buildCard(r, i, maxScore)).join('');
-  setMain(`${errHtml}${staleHtml}
+  // start background analysis after render (first 30 only)
+  setTimeout(() => startBgAnalysis(allReels), 500);
+  setMain(`${errHtml}
     <div class="period-bar">
       <span>📅</span><span>Период: <strong>${dateFrom} — ${dateTo}</strong></span><span>·</span>
       <span>${ok} из ${feed.accounts.length} аккаунтов</span>
