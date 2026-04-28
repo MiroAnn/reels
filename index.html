@@ -784,25 +784,27 @@ function renderAnalyticsPage() {
   const analyzed = _feedsReels.filter(r => getAnalysis(r.shortcode)).length;
   document.getElementById('analyticsStatus').textContent = `${analyzed} из ${total} проанализировано`;
 
-  if (!analyzed) {
+  if (!analyzed || !_feedsReels.length) {
     document.getElementById('analyticsContent').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>Нет данных</h3><p>Открой несколько рилсов через кнопку «📝 Текст» — после анализа данные появятся здесь</p></div>`;
     return;
   }
 
-  const analyses = _feedsReels.map(r => getAnalysis(r.shortcode)).filter(Boolean);
+  // Keep reel+analysis pairs so indices don't shift after filter
+  const pairs = _feedsReels
+    .map(r => ({ reel: r, a: getAnalysis(r.shortcode) }))
+    .filter(({ a }) => !!a);
 
   // Aggregate counts
   const counts = { тема:{}, боль:{}, формат:{}, виральность:{}, интерес:{}, вирал_потенциал:{} };
   const lists  = { хук: [], cta: [] };
-  analyses.forEach((a, idx) => {
+  pairs.forEach(({ reel, a }) => {
     const add = (obj, val) => { if (val && val !== 'Не хватает данных') obj[val] = (obj[val]||0)+1; };
     add(counts.тема, a.тема); add(counts.боль, a.боль); add(counts.формат, a.формат);
     add(counts.интерес, a.интерес); add(counts.вирал_потенциал, a.вирал_потенциал);
     (a.виральность||[]).forEach(v => add(counts.виральность, v));
-    const reel = _feedsReels[idx];
-    const acc  = reel ? (reel.accountUsername || reel.username || '') : '';
-    if (a.хук  && a.хук  !== 'Не хватает данных') lists.хук.push({ text: a.хук,  acc });
-    if (a.cta  && a.cta  !== 'Не хватает данных' && a.cta !== 'Отсутствует') lists.cta.push({ text: a.cta, acc });
+    const acc = reel.accountUsername || reel.username || '';
+    if (a.хук && a.хук !== 'Не хватает данных') lists.хук.push({ text: a.хук, acc });
+    if (a.cta && a.cta !== 'Не хватает данных' && a.cta !== 'Отсутствует') lists.cta.push({ text: a.cta, acc });
   });
 
   const sortedEntries = obj => Object.entries(obj).sort((a,b)=>b[1]-a[1]);
