@@ -631,7 +631,7 @@ function reelToRow(reel, a) {
 }
 
 function reelToHookRow(reel, a) {
-  // Columns: Хук, Тип, Просмотры, Лайки, Комментарии, Аккаунт, Дата, Источник, Заметки
+  // Columns: Хук, Тип, Просмотры, Лайки, Комментарии, Аккаунт, Дата, Источник, Заметки, Score, AI Score
   return [
     a.хук || '',
     a.формат || '',
@@ -642,6 +642,8 @@ function reelToHookRow(reel, a) {
     new Date().toLocaleDateString('ru'),
     reel.url || '',
     a.резюме || '',
+    reel.score != null ? Math.round(reel.score) : '',  // Score (⚡ популярность)
+    a.score != null ? a.score : '',                    // AI Score (1-10)
   ];
 }
 
