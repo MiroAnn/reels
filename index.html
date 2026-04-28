@@ -301,10 +301,9 @@ function renderTabs() {
       <input class="tab-name"
         value="${f.name.replace(/"/g,'&quot;')}"
         title="Двойной клик — переименовать" readonly
-        ondblclick="this.removeAttribute('readonly'); this.select()"
+        ondblclick="event.stopPropagation(); this.removeAttribute('readonly'); this.select()"
         onblur="this.setAttribute('readonly',''); renameFeed('${f.id}', this.value); renderTabs()"
-        onkeydown="if(event.key==='Enter'){this.blur()} event.stopPropagation()"
-        onclick="event.stopPropagation()">
+        onkeydown="if(event.key==='Enter'){this.blur()} event.stopPropagation()">
       <button class="tab-del" title="Удалить ленту" onclick="event.stopPropagation(); deleteFeed('${f.id}')">×</button>
     </div>
   `).join('') + `
