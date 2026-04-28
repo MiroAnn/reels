@@ -630,12 +630,35 @@ function reelToRow(reel, a) {
   ];
 }
 
+function reelToHookRow(reel, a) {
+  // Columns: Хук, Тип, Просмотры, Лайки, Комментарии, Аккаунт, Дата, Источник, Заметки
+  return [
+    a.хук || '',
+    a.формат || '',
+    reel.views || 0,
+    reel.likes || 0,
+    reel.comments || 0,
+    reel.accountUsername || reel.username || '',
+    new Date().toLocaleDateString('ru'),
+    reel.url || '',
+    a.резюме || '',
+  ];
+}
+
+async function postToSheets(sheet, row) {
+  await fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sheet, row }),
+  });
+}
+
 async function saveBulkToSheets() {
   const btn = document.getElementById('analytics-save-btn');
   const saved = getSavedSet();
   const toSave = (_feedsReels || [])
     .filter(r => r.shortcode && getAnalysis(r.shortcode) && !saved.has(r.shortcode))
-    .map(r => ({ shortcode: r.shortcode, row: reelToRow(r, getAnalysis(r.shortcode)) }));
+    .map(r => ({ shortcode: r.shortcode, reel: r, a: getAnalysis(r.shortcode) }));
 
   if (!toSave.length) {
     if (btn) { btn.textContent = '✅ Всё уже сохранено'; setTimeout(() => updateAnalyticsSaveBtn(), 2000); }
@@ -643,15 +666,15 @@ async function saveBulkToSheets() {
   }
   if (btn) { btn.textContent = `⏳ Сохраняю ${toSave.length}…`; btn.disabled = true; }
 
-  // send row by row (Apps Script не поддерживает bulk без редеплоя)
   let done = 0;
   for (const item of toSave) {
     try {
-      await fetch(SHEETS_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sheet: 'Reels', row: item.row }),
-      });
+      // Сохраняем в Reels
+      await postToSheets('Reels', reelToRow(item.reel, item.a));
+      // Сохраняем хук в Hooks (только если хук есть)
+      if (item.a.хук && item.a.хук !== 'Не хватает данных') {
+        await postToSheets('Hooks', reelToHookRow(item.reel, item.a));
+      }
       done++;
     } catch(e) { /* продолжаем */ }
   }
