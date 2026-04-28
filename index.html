@@ -110,6 +110,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .reel-text-btn:hover { background: #ede9fe; }
 .reel-open { font-size: 11px; font-weight: 700; color: var(--purple); text-decoration: none; padding: 3px 8px; background: #f5f3ff; border-radius: 6px; border: 1px solid #ddd6fe; }
 .reel-open:hover { background: #ede9fe; }
+.reel-save-btn { font-size: 11px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 3px 8px; cursor: pointer; display: none; }
+.reel-save-btn:hover { background: #dcfce7; }
+.reel-save-btn.saved { color: #9ca3af; background: #f9fafb; border-color: #e5e7eb; cursor: default; }
 
 /* ── Modal ── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity .2s; }
@@ -148,6 +151,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tag-format { background: #fce7f3; color: #831843; }
 .tag-pain   { background: #fff7ed; color: #9a3412; }
 .tag-pending { background: #f3f4f6; color: #9ca3af; font-style: italic; }
+.ai-score { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
+.ai-score-1,.ai-score-2,.ai-score-3  { background: #f0fdf4; color: #166534; }
+.ai-score-4,.ai-score-5,.ai-score-6  { background: #fefce8; color: #854d0e; }
+.ai-score-7,.ai-score-8              { background: #fff7ed; color: #9a3412; }
+.ai-score-9,.ai-score-10             { background: #fdf4ff; color: #6b21a8; }
 
 /* ── Modal analysis ── */
 .analysis-wrap { margin-top: 14px; border-top: 1px solid #f3f4f6; padding-top: 14px; }
@@ -171,6 +179,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .analytics-back:hover { background: #ede9fe; }
 .analytics-title { font-size: 15px; font-weight: 800; color: #1a0533; flex: 1; }
 .analytics-status { font-size: 12px; color: #9ca3af; }
+.analytics-save-btn { background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.analytics-save-btn:hover:not(:disabled) { background: #dcfce7; }
+.analytics-save-btn:disabled { opacity: .6; cursor: default; }
 .analytics-section { background: white; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(109,40,217,.06); border: 1px solid #ede9fe; }
 .analytics-section h3 { font-size: 13px; font-weight: 800; color: #4c1d95; margin-bottom: 14px; }
 .astat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
@@ -279,6 +290,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <button class="analytics-back" onclick="showPage('feeds')">← Назад</button>
     <div class="analytics-title">📊 Сводная аналитика</div>
     <div class="analytics-status" id="analyticsStatus"></div>
+    <button id="analytics-save-btn" class="analytics-save-btn" onclick="saveBulkToSheets()">💾 Сохранить в базу</button>
   </div>
   <div class="content"><div id="analyticsContent"></div></div>
 </div>
@@ -288,10 +300,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <script>
 // ── Config ────────────────────────────────────────────────────────────────
 const WORKER_URL   = 'https://summer-lab-a729.proludey.workers.dev';
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbxOa32Ald3UEQuMERcRYBiVJbLhi-ZpEK9ngBUcS3b91XknikihnUsDbbySpLC0y4NieA/exec';
 const STORAGE_KEY  = 'reels_feeds_v3';
 const ANALYSIS_KEY = 'reels_analysis_v1';
+const SAVED_KEY    = 'reels_saved_v1';
 const MAX_FEEDS    = 10;
 const MAX_ACCS     = 30;
+
+// ── Saved-to-sheets tracking ──────────────────────────────────────────────
+function getSavedSet() {
+  try { return new Set(JSON.parse(localStorage.getItem(SAVED_KEY)) || []); } catch { return new Set(); }
+}
+function markSaved(shortcodes) {
+  const s = getSavedSet();
+  shortcodes.forEach(c => s.add(c));
+  localStorage.setItem(SAVED_KEY, JSON.stringify([...s]));
+}
 
 // ── Analysis cache ────────────────────────────────────────────────────────
 let _analysisCache = {};
@@ -565,8 +589,13 @@ function renderMain() {
 
 // ── Build card HTML ───────────────────────────────────────────────────────
 function renderTagsHtml(a) {
-  if (!a) return `<span class="card-tag tag-pending">📊 анализ по кнопке «Текст»</span>`;
+  if (!a) return `<span class="card-tag tag-pending">📊 анализ идёт…</span>`;
+  const s = a.score != null ? parseInt(a.score) : null;
+  const scoreHtml = s != null
+    ? `<span class="ai-score ai-score-${s}">⭐ Score ${s}/10</span>`
+    : '';
   return [
+    scoreHtml,
     a.тема   ? `<span class="card-tag tag-topic">📌 ${a.тема}</span>`   : '',
     a.формат ? `<span class="card-tag tag-format">🎬 ${a.формат}</span>` : '',
     a.боль   ? `<span class="card-tag tag-pain">💢 ${a.боль}</span>`   : '',
@@ -575,6 +604,71 @@ function renderTagsHtml(a) {
 function updateCardTags(shortcode) {
   const el = document.getElementById(`ctags-${shortcode}`);
   if (el) el.innerHTML = renderTagsHtml(getAnalysis(shortcode));
+}
+
+function reelToRow(reel, a) {
+  return [
+    new Date().toLocaleDateString('ru'),
+    reel.accountUsername || reel.username || '',
+    reel.url || '',
+    reel.views || 0,
+    reel.likes || 0,
+    reel.comments || 0,
+    a.score != null ? a.score : '',
+    a.тема || '',
+    a.боль || '',
+    a.формат || '',
+    a.хук || '',
+    a.интерес || '',
+    a.cta || '',
+    (a.виральность || []).join(', '),
+    a.вирал_потенциал || '',
+    a.резюме || '',
+    a.сила || '',
+    a.слабость || '',
+  ];
+}
+
+async function saveBulkToSheets() {
+  const btn = document.getElementById('analytics-save-btn');
+  const saved = getSavedSet();
+  const toSave = (_feedsReels || [])
+    .filter(r => r.shortcode && getAnalysis(r.shortcode) && !saved.has(r.shortcode))
+    .map(r => ({ shortcode: r.shortcode, row: reelToRow(r, getAnalysis(r.shortcode)) }));
+
+  if (!toSave.length) {
+    if (btn) { btn.textContent = '✅ Всё уже сохранено'; setTimeout(() => updateAnalyticsSaveBtn(), 2000); }
+    return;
+  }
+  if (btn) { btn.textContent = `⏳ Сохраняю ${toSave.length}…`; btn.disabled = true; }
+
+  // send row by row (Apps Script не поддерживает bulk без редеплоя)
+  let done = 0;
+  for (const item of toSave) {
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheet: 'Reels', row: item.row }),
+      });
+      done++;
+    } catch(e) { /* продолжаем */ }
+  }
+  markSaved(toSave.map(t => t.shortcode));
+  if (btn) { btn.textContent = `✅ Сохранено ${done} рилсов`; btn.disabled = true; }
+}
+
+function updateAnalyticsSaveBtn() {
+  const btn = document.getElementById('analytics-save-btn');
+  if (!btn) return;
+  const saved = getSavedSet();
+  const newCount = (_feedsReels || [])
+    .filter(r => r.shortcode && getAnalysis(r.shortcode) && !saved.has(r.shortcode)).length;
+  if (newCount === 0) {
+    btn.textContent = '✅ Всё сохранено'; btn.disabled = true;
+  } else {
+    btn.textContent = `💾 Сохранить в базу (${newCount} новых)`; btn.disabled = false;
+  }
 }
 
 function buildCard(reel, i, maxScore) {
@@ -777,6 +871,7 @@ function showPage(name) {
 function showAnalyticsPage() {
   renderAnalyticsPage();
   showPage('analytics');
+  updateAnalyticsSaveBtn();
 }
 
 function renderAnalyticsPage() {
