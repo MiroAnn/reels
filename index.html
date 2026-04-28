@@ -138,6 +138,50 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .modal-open-btn { color: var(--purple); background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 8px 13px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
 .modal-open-btn:hover { background: #ede9fe; }
 
+/* ── Card analysis tags ── */
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; min-height: 20px; }
+.card-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tag-topic  { background: #ede9fe; color: #4c1d95; }
+.tag-format { background: #fce7f3; color: #831843; }
+.tag-pain   { background: #fff7ed; color: #9a3412; }
+.tag-pending { background: #f3f4f6; color: #9ca3af; font-style: italic; }
+
+/* ── Modal analysis ── */
+.analysis-wrap { margin-top: 14px; border-top: 1px solid #f3f4f6; padding-top: 14px; }
+.analysis-summary { background: #faf5ff; border: 1px solid #ede9fe; border-radius: 11px; padding: 12px 14px; margin-bottom: 12px; }
+.vp-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+.vp-Низкий    { background: #f0fdf4; color: #166534; }
+.vp-Средний   { background: #fefce8; color: #854d0e; }
+.vp-Высокий   { background: #fff7ed; color: #9a3412; }
+.vp-Очень-высокий { background: #fdf4ff; color: #6b21a8; }
+.analysis-summary p { font-size: 12px; color: #374151; line-height: 1.6; margin-bottom: 4px; }
+.analysis-params { display: flex; flex-direction: column; gap: 8px; }
+.param-row { display: flex; gap: 10px; align-items: flex-start; }
+.param-label { font-size: 10.5px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .5px; min-width: 80px; padding-top: 1px; }
+.param-value { font-size: 12px; color: #1a0533; line-height: 1.5; flex: 1; }
+.param-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.param-chip { font-size: 10px; font-weight: 600; background: #f5f3ff; border: 1px solid #ddd6fe; color: #4c1d95; padding: 2px 8px; border-radius: 99px; }
+
+/* ── Analytics page ── */
+.analytics-topbar { display: flex; align-items: center; gap: 12px; background: white; border-bottom: 1px solid #ede9fe; padding: 11px 20px; }
+.analytics-back { background: #f5f3ff; border: 1px solid #ddd6fe; color: #6d28d9; border-radius: 8px; padding: 6px 13px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.analytics-back:hover { background: #ede9fe; }
+.analytics-title { font-size: 15px; font-weight: 800; color: #1a0533; flex: 1; }
+.analytics-status { font-size: 12px; color: #9ca3af; }
+.analytics-section { background: white; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(109,40,217,.06); border: 1px solid #ede9fe; }
+.analytics-section h3 { font-size: 13px; font-weight: 800; color: #4c1d95; margin-bottom: 14px; }
+.astat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.astat-label { font-size: 12px; color: #374151; width: 180px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.astat-bar-wrap { flex: 1; background: #f5f3ff; border-radius: 99px; height: 7px; overflow: hidden; }
+.astat-bar { height: 100%; background: var(--grad); border-radius: 99px; }
+.astat-count { font-size: 11px; font-weight: 700; color: #6d28d9; min-width: 28px; text-align: right; }
+.vp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.vp-card { text-align: center; padding: 14px 8px; border-radius: 11px; border: 1px solid #ede9fe; }
+.vp-card-count { font-size: 26px; font-weight: 900; color: #4c1d95; line-height: 1; }
+.vp-card-label { font-size: 10px; color: #9ca3af; margin-top: 5px; }
+.vp-card.vp-low  { background: #f0fdf4; } .vp-card.vp-mid  { background: #fefce8; }
+.vp-card.vp-high { background: #fff7ed; } .vp-card.vp-very { background: #fdf4ff; }
+
 .page-footer { text-align: center; padding: 18px; font-size: 11px; color: #c4b5fd; }
 
 @media (max-width: 520px) {
@@ -176,6 +220,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="modal-copy-btn" id="copyTranscriptionBtn" style="display:none" onclick="copyTranscription()">📋 Скопировать</button>
         <a class="modal-open-btn" id="modalLink" href="#" target="_blank">Открыть рилс →</a>
       </div>
+      <div id="analysisArea"></div>
     </div>
   </div>
 </div>
@@ -198,6 +243,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         onkeydown="if(event.key==='Enter') handleAdd()">
       <button class="add-btn" onclick="handleAdd()">+ Добавить</button>
       <button class="share-btn" onclick="toggleShareLink()" title="Поделиться списком аккаунтов">🔗</button>
+      <button class="share-btn" onclick="showAnalyticsPage()" title="Сводная аналитика">📊</button>
     </div>
     <div class="chips-row" id="chipsRow"></div>
     <div class="share-bar" id="shareBar" style="display:none">
@@ -215,14 +261,34 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 
+<!-- ══ Page: Аналитика ══ -->
+<div id="page-analytics" style="display:none">
+  <div class="analytics-topbar">
+    <button class="analytics-back" onclick="showPage('feeds')">← Назад</button>
+    <div class="analytics-title">📊 Сводная аналитика</div>
+    <div class="analytics-status" id="analyticsStatus"></div>
+  </div>
+  <div class="content"><div id="analyticsContent"></div></div>
+</div>
+
 <div class="page-footer">Reels Analyzer · данные обновляются при каждой загрузке</div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────
-const WORKER_URL  = 'https://summer-lab-a729.proludey.workers.dev';
-const STORAGE_KEY = 'reels_feeds_v3';
-const MAX_FEEDS   = 10;
-const MAX_ACCS    = 30;
+const WORKER_URL   = 'https://summer-lab-a729.proludey.workers.dev';
+const STORAGE_KEY  = 'reels_feeds_v3';
+const ANALYSIS_KEY = 'reels_analysis_v1';
+const MAX_FEEDS    = 10;
+const MAX_ACCS     = 30;
+
+// ── Analysis cache ────────────────────────────────────────────────────────
+let _analysisCache = {};
+function loadAnalysisCache() {
+  try { _analysisCache = JSON.parse(localStorage.getItem(ANALYSIS_KEY)) || {}; } catch { _analysisCache = {}; }
+}
+function saveAnalysisCache() { localStorage.setItem(ANALYSIS_KEY, JSON.stringify(_analysisCache)); }
+function getAnalysis(shortcode) { return _analysisCache[shortcode] || null; }
+function setAnalysis(shortcode, data) { _analysisCache[shortcode] = data; saveAnalysisCache(); updateCardTags(shortcode); }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -430,6 +496,19 @@ function renderMain() {
 }
 
 // ── Build card HTML ───────────────────────────────────────────────────────
+function renderTagsHtml(a) {
+  if (!a) return `<span class="card-tag tag-pending">📊 анализ по кнопке «Текст»</span>`;
+  return [
+    a.тема   ? `<span class="card-tag tag-topic">📌 ${a.тема}</span>`   : '',
+    a.формат ? `<span class="card-tag tag-format">🎬 ${a.формат}</span>` : '',
+    a.боль   ? `<span class="card-tag tag-pain">💢 ${a.боль}</span>`   : '',
+  ].filter(Boolean).join('');
+}
+function updateCardTags(shortcode) {
+  const el = document.getElementById(`ctags-${shortcode}`);
+  if (el) el.innerHTML = renderTagsHtml(getAnalysis(shortcode));
+}
+
 function buildCard(reel, i, maxScore) {
   const rank  = i + 1;
   const rl    = rank===1?'🥇 #1':rank===2?'🥈 #2':rank===3?'🥉 #3':`#${rank}`;
@@ -446,6 +525,7 @@ function buildCard(reel, i, maxScore) {
         <div class="badge-account">${av}<span>@${reel.accountUsername||reel.username||'—'}</span></div>
       </div>
       <div class="reel-body">
+        <div class="card-tags" id="ctags-${reel.shortcode}">${renderTagsHtml(getAnalysis(reel.shortcode))}</div>
         <div class="reel-desc">${desc}</div>
         <div class="score-bar"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div></div>
         <div class="stats-row">
@@ -494,9 +574,11 @@ function renderReels(feed, allReels, errors) {
 let _feedsReels = [];
 let _currentIdx = -1;
 const _txCache  = {};
+let   _currentTranscription = '';
 
 function showModal(idx) {
   _currentIdx = idx;
+  _currentTranscription = '';
   const reel = _feedsReels[idx];
   if (!reel) return;
 
@@ -511,13 +593,23 @@ function showModal(idx) {
   else { cap.textContent = 'Подпись отсутствует'; cap.classList.add('empty'); }
 
   document.getElementById('copyTranscriptionBtn').style.display = 'none';
+
+  // Show cached analysis if exists
+  const analysisEl = document.getElementById('analysisArea');
+  if (analysisEl) analysisEl.innerHTML = '';
+  if (getAnalysis(reel.shortcode)) {
+    renderAnalysisInModal(getAnalysis(reel.shortcode));
+  }
+
   const area = document.getElementById('transcriptionArea');
   if (_txCache[reel.shortcode]) {
+    _currentTranscription = _txCache[reel.shortcode];
     showTxResult(_txCache[reel.shortcode]);
+    if (!getAnalysis(reel.shortcode)) startAnalysis();
   } else if (!reel.video_url) {
-    area.innerHTML = `<div class="transcription-error">⚠️ URL видео недоступен</div>`;
+    area.innerHTML = `<div class="transcription-error">⚠️ URL видео недоступен — анализ только по подписи</div>`;
+    if (!getAnalysis(reel.shortcode)) startAnalysis();
   } else {
-    // auto-start transcription
     area.innerHTML = `<div class="transcription-loading"><div class="mini-spinner"></div><span>Расшифровываю аудио… 15–40 сек</span></div>`;
     startTranscription();
   }
@@ -542,11 +634,136 @@ async function startTranscription() {
     if (!resp.ok || data.error) {
       area.innerHTML = `<div class="transcription-error">😕 ${data.error||'Ошибка'}</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`; return;
     }
+    _currentTranscription = data.transcription;
     _txCache[reel.shortcode] = data.transcription;
     showTxResult(data.transcription);
+    if (!getAnalysis(reel.shortcode)) startAnalysis();
   } catch {
     area.innerHTML = `<div class="transcription-error">😕 Время ожидания истекло</div><button class="transcribe-btn" onclick="startTranscription()">🔄 Повторить</button>`;
   }
+}
+
+// ── Analysis ──────────────────────────────────────────────────────────────
+async function startAnalysis() {
+  const reel = _feedsReels[_currentIdx];
+  if (!reel) return;
+  const aEl = document.getElementById('analysisArea');
+  if (!aEl) return;
+  aEl.innerHTML = `<div class="transcription-loading" style="margin-top:12px"><div class="mini-spinner"></div><span>Анализирую ролик…</span></div>`;
+  try {
+    const resp = await fetch(`${WORKER_URL}/?action=analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcription: _currentTranscription, caption: reel.caption || '' }),
+      signal: AbortSignal.timeout(40000)
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) { aEl.innerHTML = `<div class="transcription-error" style="margin-top:10px">😕 ${data.error||'Ошибка анализа'}</div>`; return; }
+    setAnalysis(reel.shortcode, data.analysis);
+    renderAnalysisInModal(data.analysis);
+  } catch(e) {
+    if (aEl) aEl.innerHTML = `<div class="transcription-error" style="margin-top:10px">😕 Таймаут анализа</div>`;
+  }
+}
+
+const VP_ORDER = ['Очень высокий','Высокий','Средний','Низкий'];
+function vpClass(v) {
+  if (v==='Низкий') return 'vp-Низкий'; if (v==='Средний') return 'vp-Средний';
+  if (v==='Высокий') return 'vp-Высокий'; return 'vp-Очень-высокий';
+}
+
+function renderAnalysisInModal(a) {
+  const el = document.getElementById('analysisArea');
+  if (!el || !a) return;
+  const chips = (a.виральность||[]).map(v=>`<span class="param-chip">${v}</span>`).join('');
+  el.innerHTML = `
+    <div class="analysis-wrap">
+      <div class="modal-label">Анализ ролика</div>
+      <div class="analysis-summary">
+        <span class="vp-badge ${vpClass(a.вирал_потенциал)}">${a.вирал_потенциал||'—'}</span>
+        <p>${a.резюме||''}</p>
+        ${a.сила    ? `<p>💪 <strong>Сила:</strong> ${a.сила}</p>`     : ''}
+        ${a.слабость? `<p>⚠️ <strong>Слабость:</strong> ${a.слабость}</p>` : ''}
+      </div>
+      <div class="analysis-params">
+        ${row('Тема',       a.тема)}
+        ${row('Боль',       a.боль)}
+        ${row('Формат',     a.формат)}
+        ${row('Хук',        a.хук)}
+        ${row('Интерес',    a.интерес)}
+        ${row('CTA',        a.cta)}
+        <div class="param-row"><span class="param-label">Виральность</span><div class="param-chips">${chips||'—'}</div></div>
+      </div>
+    </div>`;
+}
+function row(label, val) {
+  if (!val) return '';
+  return `<div class="param-row"><span class="param-label">${label}</span><span class="param-value">${val}</span></div>`;
+}
+
+// ── Pages ──────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.getElementById('page-feeds').style.display     = name==='feeds'     ? '' : 'none';
+  document.getElementById('page-analytics').style.display = name==='analytics' ? '' : 'none';
+}
+function showAnalyticsPage() {
+  renderAnalyticsPage();
+  showPage('analytics');
+}
+
+function renderAnalyticsPage() {
+  const total    = _feedsReels.length;
+  const analyzed = _feedsReels.filter(r => getAnalysis(r.shortcode)).length;
+  document.getElementById('analyticsStatus').textContent = `${analyzed} из ${total} проанализировано`;
+
+  if (!analyzed) {
+    document.getElementById('analyticsContent').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>Нет данных</h3><p>Открой несколько рилсов через кнопку «📝 Текст» — после анализа данные появятся здесь</p></div>`;
+    return;
+  }
+
+  const analyses = _feedsReels.map(r => getAnalysis(r.shortcode)).filter(Boolean);
+
+  // Aggregate counts
+  const counts = { тема:{}, боль:{}, формат:{}, виральность:{}, интерес:{}, вирал_потенциал:{} };
+  analyses.forEach(a => {
+    const add = (obj, val) => { if (val && val !== 'Не хватает данных') obj[val] = (obj[val]||0)+1; };
+    add(counts.тема, a.тема); add(counts.боль, a.боль); add(counts.формат, a.формат);
+    add(counts.интерес, a.интерес); add(counts.вирал_потенциал, a.вирал_потенциал);
+    (a.виральность||[]).forEach(v => add(counts.виральность, v));
+  });
+
+  const sortedEntries = obj => Object.entries(obj).sort((a,b)=>b[1]-a[1]);
+  const maxVal = obj => Math.max(...Object.values(obj), 1);
+
+  function sectionHtml(title, obj, limit=10) {
+    const entries = sortedEntries(obj).slice(0, limit);
+    const mx = maxVal(obj);
+    if (!entries.length) return '';
+    return `<div class="analytics-section"><h3>${title}</h3>${entries.map(([k,v])=>`
+      <div class="astat-row">
+        <div class="astat-label" title="${k}">${k}</div>
+        <div class="astat-bar-wrap"><div class="astat-bar" style="width:${Math.round(v/mx*100)}%"></div></div>
+        <div class="astat-count">${v}</div>
+      </div>`).join('')}</div>`;
+  }
+
+  // VP grid
+  const vp = counts.вирал_потенциал;
+  const vpGrid = `<div class="analytics-section"><h3>🔥 Виральный потенциал</h3>
+    <div class="vp-grid">
+      <div class="vp-card vp-very"><div class="vp-card-count">${vp['Очень высокий']||0}</div><div class="vp-card-label">Очень высокий</div></div>
+      <div class="vp-card vp-high"><div class="vp-card-count">${vp['Высокий']||0}</div><div class="vp-card-label">Высокий</div></div>
+      <div class="vp-card vp-mid"><div class="vp-card-count">${vp['Средний']||0}</div><div class="vp-card-label">Средний</div></div>
+      <div class="vp-card vp-low"><div class="vp-card-count">${vp['Низкий']||0}</div><div class="vp-card-label">Низкий</div></div>
+    </div></div>`;
+
+  document.getElementById('analyticsContent').innerHTML =
+    vpGrid +
+    sectionHtml('📌 Темы', counts.тема) +
+    sectionHtml('💢 Боли аудитории', counts.боль) +
+    sectionHtml('🎬 Форматы', counts.формат) +
+    sectionHtml('⚡ Критерии виральности', counts.виральность) +
+    sectionHtml('🎯 Удержание интереса', counts.интерес);
 }
 
 function showTxResult(text) {
@@ -598,6 +815,7 @@ function copyShareLink() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
+loadAnalysisCache();
 // Load accounts from ?share= URL param into the active feed
 (() => {
   const params  = new URLSearchParams(location.search);
