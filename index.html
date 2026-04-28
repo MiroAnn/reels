@@ -608,13 +608,13 @@ function updateCardTags(shortcode) {
 
 function reelToRow(reel, a) {
   return [
-    new Date().toLocaleDateString('ru'),
-    reel.accountUsername || reel.username || '',
-    reel.url || '',
-    reel.views || 0,
-    reel.likes || 0,
-    reel.comments || 0,
-    a.score != null ? a.score : '',
+    new Date().toLocaleDateString('ru'),          // Дата
+    reel.accountUsername || reel.username || '',  // Аккаунт
+    reel.url || '',                               // URL
+    reel.views || 0,                              // Просмотры
+    reel.likes || 0,                              // Лайки
+    reel.comments || 0,                           // Комментарии
+    reel.score != null ? Math.round(reel.score) : '',  // Score (⚡ популярность)
     a.тема || '',
     a.боль || '',
     a.формат || '',
@@ -626,6 +626,7 @@ function reelToRow(reel, a) {
     a.резюме || '',
     a.сила || '',
     a.слабость || '',
+    a.score != null ? a.score : '',               // AI Score (1-10) — добавь колонку в конец шита
   ];
 }
 
