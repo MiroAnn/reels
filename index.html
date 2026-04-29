@@ -618,6 +618,7 @@ function reelToRow(reel, a) {
     a.тема || '',
     a.боль || '',
     a.формат || '',
+    a.структура || '',
     a.хук || '',
     a.интерес || '',
     a.cta || '',
@@ -877,6 +878,7 @@ function renderAnalysisInModal(a) {
         ${row('Тема',       a.тема)}
         ${row('Боль',       a.боль)}
         ${row('Формат',     a.формат)}
+        ${row('Структура',  a.структура)}
         ${row('Хук',        a.хук)}
         ${row('Интерес',    a.интерес)}
         ${row('CTA',        a.cta)}
@@ -916,11 +918,12 @@ function renderAnalyticsPage() {
     .filter(({ a }) => !!a);
 
   // Aggregate counts
-  const counts = { тема:{}, боль:{}, формат:{}, виральность:{}, интерес:{}, вирал_потенциал:{} };
+  const counts = { тема:{}, боль:{}, формат:{}, структура:{}, виральность:{}, интерес:{}, вирал_потенциал:{} };
   const lists  = { хук: [], cta: [] };
   pairs.forEach(({ reel, a }) => {
     const add = (obj, val) => { if (val && val !== 'Не хватает данных') obj[val] = (obj[val]||0)+1; };
     add(counts.тема, a.тема); add(counts.боль, a.боль); add(counts.формат, a.формат);
+    add(counts.структура, a.структура);
     add(counts.интерес, a.интерес); add(counts.вирал_потенциал, a.вирал_потенциал);
     (a.виральность||[]).forEach(v => add(counts.виральность, v));
     const acc = reel.accountUsername || reel.username || '';
@@ -969,6 +972,7 @@ function renderAnalyticsPage() {
     sectionHtml('📌 Темы', counts.тема) +
     sectionHtml('💢 Боли аудитории', counts.боль) +
     sectionHtml('🎬 Форматы', counts.формат) +
+    sectionHtml('🏗️ Структуры сценариев', counts.структура) +
     sectionHtml('⚡ Критерии виральности', counts.виральность) +
     sectionHtml('🎯 Удержание интереса', counts.интерес) +
     listSectionHtml('🎣 Хуки', lists.хук) +
